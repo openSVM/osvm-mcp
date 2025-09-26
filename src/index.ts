@@ -97,7 +97,7 @@ class OpenSVMServer {
 
     this.client = new OpenSVMClient();
     this.setupToolHandlers();
-    
+
     // Error handling
     this.server.onerror = (error) => console.error('[MCP Error]', error);
     process.on('SIGINT', async () => {
@@ -110,6 +110,14 @@ class OpenSVMServer {
     // List all available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
       tools: [
+        {
+          name: 'tools/list',
+          description: 'List all available tools (compatibility shim for stdio transport)',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          }
+        },
         // Transaction Tools
         {
           name: 'get_transaction',
@@ -128,8 +136,8 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {
-              signatures: { 
-                type: 'array', 
+              signatures: {
+                type: 'array',
                 items: { type: 'string' },
                 description: 'Array of transaction signatures (max 20)',
                 maxItems: 20
@@ -329,8 +337,8 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {
-              mints: { 
-                type: 'array', 
+              mints: {
+                type: 'array',
                 items: { type: 'string' },
                 description: 'Array of token mint addresses'
               }
@@ -409,8 +417,8 @@ class OpenSVMServer {
               action: { type: 'string', enum: ['list', 'create', 'delete'], description: 'Action to perform' },
               keyId: { type: 'string', description: 'Key ID for delete action' },
               name: { type: 'string', description: 'Name for new key' },
-              permissions: { 
-                type: 'array', 
+              permissions: {
+                type: 'array',
                 items: { type: 'string' },
                 description: 'Permissions for new key'
               }
@@ -472,7 +480,7 @@ class OpenSVMServer {
             type: 'object',
             properties: {
               method: { type: 'string', description: 'RPC method name' },
-              params: { 
+              params: {
                 type: 'array',
                 description: 'RPC method parameters'
               }
@@ -489,11 +497,11 @@ class OpenSVMServer {
         return await this.handleToolCall(request.params.name, request.params.arguments);
       } catch (error) {
         console.error(`Error in tool ${request.params.name}:`, error);
-        
+
         if (axios.isAxiosError(error)) {
           const status = error.response?.status;
           const message = error.response?.data?.error?.message || error.message;
-          
+
           return {
             content: [{
               type: 'text',
@@ -502,7 +510,7 @@ class OpenSVMServer {
             isError: true
           };
         }
-        
+
         return {
           content: [{
             type: 'text',
@@ -516,6 +524,387 @@ class OpenSVMServer {
 
   private async handleToolCall(toolName: string, args: any) {
     switch (toolName) {
+      // Tools listing compatibility shim
+      case 'tools/list':
+        // Return all tools
+        const tools = [
+          // Transaction Tools
+          {
+            name: 'get_transaction',
+            description: 'Get detailed transaction information with enhanced parsing',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature (base58, 87-88 chars)' }
+              },
+              required: ['signature']
+            }
+          },
+          {
+            name: 'batch_transactions',
+            description: 'Batch fetch multiple transactions',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                signatures: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of transaction signatures (max 20)',
+                  maxItems: 20
+                },
+                includeDetails: { type: 'boolean', description: 'Include detailed transaction information' }
+              },
+              required: ['signatures']
+            }
+          },
+          {
+            name: 'analyze_transaction',
+            description: 'AI-powered transaction analysis',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                model: { type: 'string', description: 'AI model to use (optional)' }
+              },
+              required: ['signature']
+            }
+          },
+          {
+            name: 'explain_transaction',
+            description: 'Get natural language explanation of a transaction',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                language: { type: 'string', description: 'Output language (optional)' }
+              },
+              required: ['signature']
+            }
+          },
+          // Account Tools
+          {
+            name: 'get_account_stats',
+            description: 'Get comprehensive account statistics',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Solana account address' }
+              },
+              required: ['address']
+            }
+          },
+          {
+            name: 'get_account_transactions',
+            description: 'Get account transaction history',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Solana account address' },
+                limit: { type: 'number', description: 'Number of transactions to return (max 100)', maximum: 100 },
+                before: { type: 'string', description: 'Pagination cursor' },
+                type: { type: 'string', description: 'Transaction type filter' }
+              },
+              required: ['address']
+            }
+          },
+          {
+            name: 'get_account_token_stats',
+            description: 'Get token statistics for specific account',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Account address' },
+                mint: { type: 'string', description: 'Token mint address' }
+              },
+              required: ['address', 'mint']
+            }
+          },
+          {
+            name: 'check_account_type',
+            description: 'Determine account type (wallet, program, token, etc.)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Account address to check' }
+              },
+              required: ['address']
+            }
+          },
+          // Block Tools
+          {
+            name: 'get_block',
+            description: 'Get specific block information',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                slot: { type: 'number', description: 'Block slot number' }
+              },
+              required: ['slot']
+            }
+          },
+          {
+            name: 'get_recent_blocks',
+            description: 'List recent blocks',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                limit: { type: 'number', description: 'Number of blocks to return (default 20)' },
+                before: { type: 'number', description: 'Slot number for pagination' }
+              }
+            }
+          },
+          {
+            name: 'get_block_stats',
+            description: 'Get block statistics and performance metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          // Search Tools
+          {
+            name: 'universal_search',
+            description: 'Search across all data types (accounts, transactions, tokens, programs)',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                query: { type: 'string', description: 'Search query (address, signature, token name)' },
+                type: { type: 'string', enum: ['account', 'transaction', 'token', 'program'], description: 'Filter by type' },
+                start: { type: 'string', description: 'Start date ISO string' },
+                end: { type: 'string', description: 'End date ISO string' },
+                status: { type: 'string', enum: ['success', 'failed'], description: 'Transaction status filter' },
+                min: { type: 'number', description: 'Minimum amount' },
+                max: { type: 'number', description: 'Maximum amount' }
+              },
+              required: ['query']
+            }
+          },
+          {
+            name: 'search_accounts',
+            description: 'Account-specific search with filters',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                query: { type: 'string', description: 'Search query' },
+                tokenMint: { type: 'string', description: 'Filter by token mint address' },
+                minBalance: { type: 'number', description: 'Minimum balance filter' },
+                maxBalance: { type: 'number', description: 'Maximum balance filter' }
+              },
+              required: ['query']
+            }
+          },
+          // Analytics Tools
+          {
+            name: 'get_defi_overview',
+            description: 'Get comprehensive DeFi ecosystem overview',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'get_dex_analytics',
+            description: 'Get DEX-specific analytics with real-time prices',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                dex: { type: 'string', description: 'Specific DEX name' },
+                timeframe: { type: 'string', enum: ['1h', '24h', '7d'], description: 'Time period' }
+              }
+            }
+          },
+          {
+            name: 'get_defi_health',
+            description: 'Get DeFi ecosystem health metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'get_validator_analytics',
+            description: 'Get validator network analytics',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          // Token & NFT Tools
+          {
+            name: 'get_token_info',
+            description: 'Get token details and metadata',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Token mint address' }
+              },
+              required: ['address']
+            }
+          },
+          {
+            name: 'get_token_metadata',
+            description: 'Batch token metadata lookup',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                mints: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Array of token mint addresses'
+                }
+              },
+              required: ['mints']
+            }
+          },
+          {
+            name: 'get_nft_collections',
+            description: 'List NFT collections',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                limit: { type: 'number', description: 'Number of collections to return' },
+                sort: { type: 'string', enum: ['volume', 'floor', 'items'], description: 'Sort criteria' }
+              }
+            }
+          },
+          {
+            name: 'get_trending_nfts',
+            description: 'Get trending NFT collections',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          // User Management Tools
+          {
+            name: 'verify_wallet_signature',
+            description: 'Verify wallet signature for authentication',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string', description: 'Message that was signed' },
+                signature: { type: 'string', description: 'Wallet signature' },
+                publicKey: { type: 'string', description: 'Public key of the wallet' }
+              },
+              required: ['message', 'signature', 'publicKey']
+            }
+          },
+          {
+            name: 'get_user_history',
+            description: 'Get user transaction history',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                walletAddress: { type: 'string', description: 'User wallet address' },
+                limit: { type: 'number', description: 'Number of transactions to return' }
+              },
+              required: ['walletAddress']
+            }
+          },
+          // Monetization Tools
+          {
+            name: 'get_balance',
+            description: 'Get user SVMAI token balance (requires JWT)',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'get_usage_stats',
+            description: 'Track API usage and metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'manage_api_keys',
+            description: 'List, create, or manage API keys',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                action: { type: 'string', enum: ['list', 'create', 'delete'], description: 'Action to perform' },
+                keyId: { type: 'string', description: 'Key ID for delete action' },
+                name: { type: 'string', description: 'Name for new key' },
+                permissions: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Permissions for new key'
+                }
+              },
+              required: ['action']
+            }
+          },
+          // Infrastructure Tools
+          {
+            name: 'get_api_metrics',
+            description: 'Get API performance metrics',
+            inputSchema: {
+              type: 'object',
+              properties: {}
+            }
+          },
+          {
+            name: 'report_error',
+            description: 'Report client-side errors',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                message: { type: 'string', description: 'Error message' },
+                stack: { type: 'string', description: 'Error stack trace' },
+                url: { type: 'string', description: 'URL where error occurred' },
+                userAgent: { type: 'string', description: 'User agent string' }
+              },
+              required: ['message']
+            }
+          },
+          // Program Registry Tools
+          {
+            name: 'get_program_registry',
+            description: 'List registered Solana programs',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                category: { type: 'string', description: 'Program category filter' },
+                verified: { type: 'boolean', description: 'Show only verified programs' }
+              }
+            }
+          },
+          {
+            name: 'get_program_info',
+            description: 'Get specific program details and metadata',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                programId: { type: 'string', description: 'Program address' }
+              },
+              required: ['programId']
+            }
+          },
+          // Utility Tools
+          {
+            name: 'solana_rpc_call',
+            description: 'Make direct Solana RPC calls through OpenSVM proxy',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                method: { type: 'string', description: 'RPC method name' },
+                params: {
+                  type: 'array',
+                  description: 'RPC method parameters'
+                }
+              },
+              required: ['method']
+            }
+          }
+        ];
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(tools, null, 2)
+          }]
+        };
       // Transaction Tools
       case 'get_transaction':
         if (!isValidTransactionSignature(args.signature)) {
