@@ -1,0 +1,672 @@
+# OpenSVM MCP Server - Solana RPC API Documentation
+
+> Comprehensive documentation for LLMs to understand and interact with the Solana blockchain through OpenSVM API
+
+## Overview
+
+This MCP server provides comprehensive access to the Solana blockchain via the OpenSVM API. It supports 85+ endpoints covering transactions, accounts, analytics, tokens, NFTs, and real-time data.
+
+**Base URL**: https://osvm.ai/api (configurable via OPENSVM_BASE_URL)
+**Authentication**: Supports API Key (X-API-Key header) and JWT Bearer tokens
+
+## Core Capabilities
+
+### Transaction Operations
+
+#### 1. Get Transaction Details (getParsedTransaction)
+**Tool**: `get_transaction`
+**Description**: Retrieves detailed transaction information with enhanced parsing, equivalent to Solana's getParsedTransaction RPC method.
+
+**Parameters**:
+- `signature` (required): Transaction signature (base58, 87-88 characters)
+
+**API Endpoint**: `GET /transaction/{signature}`
+
+**Returns**: Complete transaction data including:
+- Transaction metadata
+- Account keys and signatures
+- Instruction details with parsed data
+- Token transfers and balances
+- Success/failure status
+- Block time and slot information
+
+**Solana RPC Equivalent**: `getTransaction` with `encoding: "jsonParsed"`
+
+#### 2. Batch Transaction Fetch
+**Tool**: `batch_transactions`
+**Description**: Efficiently fetch multiple transactions in a single request (max 20 signatures)
+
+**Parameters**:
+- `signatures` (required): Array of transaction signatures (max 20)
+- `includeDetails` (optional, boolean): Include detailed transaction information (default: true)
+
+**API Endpoint**: `POST /transaction/batch`
+
+**Returns**: Array of transaction objects with all details
+
+**Solana RPC Equivalent**: Multiple `getTransaction` calls batched into one request
+
+#### 3. Analyze Transaction (AI-Powered)
+**Tool**: `analyze_transaction`
+**Description**: AI-powered analysis of transaction behavior and patterns
+
+**Parameters**:
+- `signature` (required): Transaction signature
+- `model` (optional): AI model to use for analysis
+
+**API Endpoint**: `GET /transaction/{signature}/analysis`
+
+**Returns**: AI-generated insights about the transaction including:
+- Transaction type and purpose
+- Involved programs and protocols
+- Token movements and swaps
+- Risk assessment
+- Similar transactions
+
+#### 4. Explain Transaction
+**Tool**: `explain_transaction`
+**Description**: Get natural language explanation of what a transaction does
+
+**Parameters**:
+- `signature` (required): Transaction signature
+- `language` (optional): Output language for explanation
+
+**API Endpoint**: `GET /transaction/{signature}/explain`
+
+**Returns**: Human-readable explanation of the transaction
+
+### Account Operations
+
+#### 5. Get Account Statistics
+**Tool**: `get_account_stats`
+**Description**: Comprehensive account statistics and metrics
+
+**Parameters**:
+- `address` (required): Solana account address (32-44 characters)
+
+**API Endpoint**: `GET /account-stats/{address}`
+
+**Returns**:
+- SOL balance and history
+- Token holdings and values
+- Transaction count and volume
+- First/last activity timestamps
+- Account type and classification
+
+**Solana RPC Equivalents**: 
+- `getAccountInfo`
+- `getBalance`
+- `getTokenAccountsByOwner`
+
+#### 6. Get Account Transaction History
+**Tool**: `get_account_transactions`
+**Description**: Retrieve transaction history for an account
+
+**Parameters**:
+- `address` (required): Solana account address
+- `limit` (optional): Number of transactions (max 100)
+- `before` (optional): Pagination cursor
+- `type` (optional): Transaction type filter
+
+**API Endpoint**: `GET /account-transactions/{address}`
+
+**Returns**: Array of transactions involving the account
+
+**Solana RPC Equivalent**: `getSignaturesForAddress` + `getTransaction` for each signature
+
+#### 7. Get Account Token Statistics
+**Tool**: `get_account_token_stats`
+**Description**: Token-specific statistics for an account and mint
+
+**Parameters**:
+- `address` (required): Account address
+- `mint` (required): Token mint address
+
+**API Endpoint**: `GET /account-token-stats/{address}/{mint}`
+
+**Returns**: Token balance, transfers, and historical data
+
+#### 8. Check Account Type
+**Tool**: `check_account_type`
+**Description**: Determine account type (wallet, program, token account, etc.)
+
+**Parameters**:
+- `address` (required): Account address to check
+
+**API Endpoint**: `GET /check-account-type?address={address}`
+
+**Returns**: Account classification and metadata
+
+### Block Operations
+
+#### 9. Get Block Information
+**Tool**: `get_block`
+**Description**: Retrieve specific block data
+
+**Parameters**:
+- `slot` (required): Block slot number
+
+**API Endpoint**: `GET /blocks/{slot}`
+
+**Returns**: Complete block information including transactions
+
+**Solana RPC Equivalent**: `getBlock`
+
+#### 10. Get Recent Blocks
+**Tool**: `get_recent_blocks`
+**Description**: List recent blocks with pagination
+
+**Parameters**:
+- `limit` (optional): Number of blocks (default 20)
+- `before` (optional): Slot number for pagination
+
+**API Endpoint**: `GET /blocks`
+
+**Returns**: Array of recent blocks
+
+**Solana RPC Equivalent**: `getBlocks` or `getBlockHeight`
+
+#### 11. Get Block Statistics
+**Tool**: `get_block_stats`
+**Description**: Network-wide block statistics and performance metrics
+
+**API Endpoint**: `GET /blocks/stats`
+
+**Returns**: Block production rates, transaction throughput, validator performance
+
+### Search Operations
+
+#### 12. Universal Search
+**Tool**: `universal_search`
+**Description**: Search across all blockchain data types
+
+**Parameters**:
+- `query` (required): Search term (address, signature, token name)
+- `type` (optional): Filter by type (account, transaction, token, program)
+- `start` (optional): Start date (ISO 8601)
+- `end` (optional): End date (ISO 8601)
+- `status` (optional): Transaction status (success, failed)
+- `min` (optional): Minimum amount filter
+- `max` (optional): Maximum amount filter
+
+**API Endpoint**: `GET /search`
+
+**Returns**: Search results across multiple data types
+
+#### 13. Search Accounts
+**Tool**: `search_accounts`
+**Description**: Account-specific search with advanced filters
+
+**Parameters**:
+- `query` (required): Search query
+- `tokenMint` (optional): Filter by token mint
+- `minBalance` (optional): Minimum balance
+- `maxBalance` (optional): Maximum balance
+
+**API Endpoint**: `GET /search/accounts`
+
+**Returns**: Filtered account results
+
+### Analytics & DeFi
+
+#### 14. Get DeFi Overview
+**Tool**: `get_defi_overview`
+**Description**: Comprehensive DeFi ecosystem metrics
+
+**API Endpoint**: `GET /analytics/overview`
+
+**Returns**: TVL, volume, users, and protocol statistics
+
+#### 15. Get DEX Analytics
+**Tool**: `get_dex_analytics`
+**Description**: DEX-specific analytics with real-time prices
+
+**Parameters**:
+- `dex` (optional): Specific DEX name
+- `timeframe` (optional): Time period (1h, 24h, 7d)
+
+**API Endpoint**: `GET /analytics/dex`
+
+**Returns**: Trading volumes, liquidity, and price data
+
+#### 16. Get DeFi Health Metrics
+**Tool**: `get_defi_health`
+**Description**: Overall DeFi ecosystem health indicators
+
+**API Endpoint**: `GET /analytics/defi-health`
+
+**Returns**: Risk scores, protocol health, and stability metrics
+
+#### 17. Get Validator Analytics
+**Tool**: `get_validator_analytics`
+**Description**: Validator network performance and statistics
+
+**API Endpoint**: `GET /analytics/validators`
+
+**Returns**: Validator performance, stake distribution, and network health
+
+### Token & NFT Operations
+
+#### 18. Get Token Information
+**Tool**: `get_token_info`
+**Description**: Detailed token metadata and statistics
+
+**Parameters**:
+- `address` (required): Token mint address
+
+**API Endpoint**: `GET /token/{address}`
+
+**Returns**: Token name, symbol, decimals, supply, holders, price
+
+**Solana RPC Equivalent**: `getAccountInfo` with token program parsing
+
+#### 19. Get Token Metadata (Batch)
+**Tool**: `get_token_metadata`
+**Description**: Batch lookup for multiple token mints
+
+**Parameters**:
+- `mints` (required): Array of token mint addresses
+
+**API Endpoint**: `GET /token-metadata?mints={comma-separated}`
+
+**Returns**: Array of token metadata objects
+
+#### 20. Get NFT Collections
+**Tool**: `get_nft_collections`
+**Description**: List NFT collections with statistics
+
+**Parameters**:
+- `limit` (optional): Number of collections
+- `sort` (optional): Sort by (volume, floor, items)
+
+**API Endpoint**: `GET /nft-collections`
+
+**Returns**: NFT collection data with floor prices and volumes
+
+#### 21. Get Trending NFTs
+**Tool**: `get_trending_nfts`
+**Description**: Currently trending NFT collections
+
+**API Endpoint**: `GET /nft-collections/trending`
+
+**Returns**: Trending collections with momentum indicators
+
+### User & Authentication
+
+#### 22. Verify Wallet Signature
+**Tool**: `verify_wallet_signature`
+**Description**: Verify wallet signature for authentication
+
+**Parameters**:
+- `message` (required): Message that was signed
+- `signature` (required): Wallet signature
+- `publicKey` (required): Wallet public key
+
+**API Endpoint**: `POST /auth/verify`
+
+**Returns**: Verification result and JWT token
+
+#### 23. Get User History
+**Tool**: `get_user_history`
+**Description**: User's transaction and interaction history
+
+**Parameters**:
+- `walletAddress` (required): User wallet address
+- `limit` (optional): Number of records
+
+**API Endpoint**: `GET /user-history/{walletAddress}`
+
+**Returns**: User activity timeline
+
+### Monetization & API Management
+
+#### 24. Get Balance
+**Tool**: `get_balance`
+**Description**: Get SVMAI token balance (requires JWT authentication)
+
+**API Endpoint**: `GET /opensvm/balance`
+
+**Returns**: Token balance and allowance
+
+#### 25. Get Usage Statistics
+**Tool**: `get_usage_stats`
+**Description**: API usage metrics and billing information
+
+**API Endpoint**: `GET /opensvm/usage`
+
+**Returns**: Request counts, costs, and rate limits
+
+#### 26. Manage API Keys
+**Tool**: `manage_api_keys`
+**Description**: Create, list, or delete API keys
+
+**Parameters**:
+- `action` (required): Action type (list, create, delete)
+- `keyId` (optional): Key ID for delete
+- `name` (optional): Name for new key
+- `permissions` (optional): Array of permissions for new key
+
+**API Endpoint**: 
+- GET `/opensvm/anthropic-keys` (list)
+- POST `/opensvm/anthropic-keys` (create)
+- DELETE `/opensvm/anthropic-keys/{keyId}` (delete)
+
+**Returns**: API key details or operation status
+
+### Infrastructure & Monitoring
+
+#### 27. Get API Metrics
+**Tool**: `get_api_metrics`
+**Description**: API performance and health metrics
+
+**API Endpoint**: `GET /monitoring/api`
+
+**Returns**: Response times, error rates, uptime
+
+#### 28. Report Error
+**Tool**: `report_error`
+**Description**: Submit client-side error reports
+
+**Parameters**:
+- `message` (required): Error message
+- `stack` (optional): Stack trace
+- `url` (optional): URL where error occurred
+- `userAgent` (optional): Browser user agent
+
+**API Endpoint**: `POST /error-tracking`
+
+**Returns**: Error tracking ID
+
+### Program Registry
+
+#### 29. Get Program Registry
+**Tool**: `get_program_registry`
+**Description**: List registered Solana programs
+
+**Parameters**:
+- `category` (optional): Program category filter
+- `verified` (optional): Show only verified programs
+
+**API Endpoint**: `GET /program-registry`
+
+**Returns**: Array of program details
+
+#### 30. Get Program Information
+**Tool**: `get_program_info`
+**Description**: Detailed information about a specific program
+
+**Parameters**:
+- `programId` (required): Program address
+
+**API Endpoint**: `GET /program-registry/{programId}`
+
+**Returns**: Program metadata, instructions, and usage statistics
+
+### Direct RPC Access
+
+#### 31. Solana RPC Call
+**Tool**: `solana_rpc_call`
+**Description**: Make direct Solana RPC calls through OpenSVM proxy
+
+**Parameters**:
+- `method` (required): RPC method name
+- `params` (optional): Array of method parameters
+
+**API Endpoint**: `POST /solana-rpc`
+
+**Request Body**:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": <timestamp>,
+  "method": "<rpc_method>",
+  "params": [...]
+}
+```
+
+**Supports All Solana RPC Methods Including**:
+- `getAccountInfo` - Get account data and executable status
+- `getBalance` - Get SOL balance
+- `getBlock` - Get block with transactions
+- `getBlockHeight` - Get current block height
+- `getBlockProduction` - Get block production information
+- `getBlockCommitment` - Get block commitment
+- `getBlocks` - Get confirmed blocks
+- `getBlocksWithLimit` - Get blocks with limit
+- `getBlockTime` - Get estimated block time
+- `getClusterNodes` - Get cluster node information
+- `getEpochInfo` - Get current epoch information
+- `getEpochSchedule` - Get epoch schedule
+- `getFeeForMessage` - Get fee for message
+- `getFirstAvailableBlock` - Get first available block
+- `getGenesisHash` - Get genesis hash
+- `getHealth` - Get node health
+- `getHighestSnapshotSlot` - Get highest snapshot slot
+- `getIdentity` - Get node identity
+- `getInflationGovernor` - Get inflation governor
+- `getInflationRate` - Get current inflation rate
+- `getInflationReward` - Get inflation reward
+- `getLargestAccounts` - Get largest accounts
+- `getLatestBlockhash` - Get latest blockhash
+- `getLeaderSchedule` - Get leader schedule
+- `getMaxRetransmitSlot` - Get max retransmit slot
+- `getMaxShredInsertSlot` - Get max shred insert slot
+- `getMinimumBalanceForRentExemption` - Get rent-exempt minimum balance
+- `getMultipleAccounts` - Get multiple account info
+- `getParsedTransaction` - **Get parsed transaction with instruction data**
+- `getProgramAccounts` - Get accounts owned by program
+- `getRecentPerformanceSamples` - Get performance samples
+- `getRecentPrioritizationFees` - Get recent prioritization fees
+- `getSignaturesForAddress` - Get transaction signatures for address
+- `getSignatureStatuses` - Get signature statuses
+- `getSlot` - Get current slot
+- `getSlotLeader` - Get current slot leader
+- `getSlotLeaders` - Get slot leaders
+- `getStakeActivation` - Get stake activation
+- `getStakeMinimumDelegation` - Get minimum stake delegation
+- `getSupply` - Get supply information
+- `getTokenAccountBalance` - Get token account balance
+- `getTokenAccountsByDelegate` - Get token accounts by delegate
+- `getTokenAccountsByOwner` - Get token accounts by owner
+- `getTokenLargestAccounts` - Get largest token accounts
+- `getTokenSupply` - Get token supply
+- `getTransaction` - Get transaction details
+- `getTransactionCount` - Get total transaction count
+- `getVersion` - Get node version
+- `getVoteAccounts` - Get vote accounts
+- `isBlockhashValid` - Check if blockhash is valid
+- `minimumLedgerSlot` - Get minimum ledger slot
+- `requestAirdrop` - Request airdrop (testnet/devnet)
+- `sendTransaction` - Send transaction
+- `simulateTransaction` - Simulate transaction
+
+**Returns**: RPC method response
+
+## Full Solana RPC API Reference
+
+### Key RPC Methods Available via solana_rpc_call Tool
+
+#### Transaction Methods
+- **getParsedTransaction**: Retrieve parsed transaction with detailed instruction breakdown
+- **getTransaction**: Get raw transaction data
+- **getSignaturesForAddress**: Get all transaction signatures for an address
+- **getSignatureStatuses**: Check status of transaction signatures
+- **sendTransaction**: Submit a transaction to the cluster
+- **simulateTransaction**: Simulate a transaction without committing
+
+#### Account Methods
+- **getAccountInfo**: Get data and metadata for an account
+- **getBalance**: Get SOL balance for an account
+- **getMultipleAccounts**: Batch get multiple accounts
+- **getProgramAccounts**: Get all accounts owned by a program
+- **getTokenAccountBalance**: Get SPL token account balance
+- **getTokenAccountsByOwner**: Get all token accounts for an owner
+- **getTokenAccountsByDelegate**: Get token accounts by delegate
+
+#### Block Methods
+- **getBlock**: Get a confirmed block with transaction data
+- **getBlockHeight**: Get current block height
+- **getBlocks**: Get list of confirmed blocks
+- **getBlockTime**: Get estimated production time of a block
+- **getFirstAvailableBlock**: Get slot of first available block
+
+#### Network & Cluster Methods
+- **getClusterNodes**: Get information about cluster nodes
+- **getEpochInfo**: Get current epoch information
+- **getHealth**: Check if node is healthy
+- **getVersion**: Get Solana version
+- **getVoteAccounts**: Get vote account information
+
+#### Token & Supply Methods
+- **getTokenSupply**: Get total supply of a token
+- **getTokenLargestAccounts**: Get largest accounts for a token
+- **getSupply**: Get information about current supply
+
+#### Fee & Performance Methods
+- **getFeeForMessage**: Estimate fee for a message
+- **getRecentPrioritizationFees**: Get recent prioritization fees
+- **getRecentPerformanceSamples**: Get recent performance samples
+- **getMinimumBalanceForRentExemption**: Get minimum balance for rent exemption
+
+#### Validator & Staking Methods
+- **getLeaderSchedule**: Get leader schedule
+- **getStakeActivation**: Get stake activation info
+- **getInflationRate**: Get current inflation rate
+- **getInflationGovernor**: Get inflation governor config
+
+## Usage Examples
+
+### Example 1: Get Parsed Transaction Details
+```javascript
+// Using get_transaction tool (recommended)
+{
+  "name": "get_transaction",
+  "arguments": {
+    "signature": "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+  }
+}
+
+// Or using direct RPC call
+{
+  "name": "solana_rpc_call",
+  "arguments": {
+    "method": "getParsedTransaction",
+    "params": [
+      "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+      { "encoding": "jsonParsed", "maxSupportedTransactionVersion": 0 }
+    ]
+  }
+}
+```
+
+### Example 2: Batch Fetch Multiple Transactions
+```javascript
+{
+  "name": "batch_transactions",
+  "arguments": {
+    "signatures": [
+      "signature1...",
+      "signature2...",
+      "signature3..."
+    ],
+    "includeDetails": true
+  }
+}
+```
+
+### Example 3: Get Account Token Holdings
+```javascript
+// Get all token accounts for an owner
+{
+  "name": "solana_rpc_call",
+  "arguments": {
+    "method": "getTokenAccountsByOwner",
+    "params": [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+      { "encoding": "jsonParsed" }
+    ]
+  }
+}
+```
+
+### Example 4: Search for Transactions
+```javascript
+{
+  "name": "universal_search",
+  "arguments": {
+    "query": "5VERv8...",
+    "type": "transaction",
+    "status": "success",
+    "start": "2024-01-01T00:00:00Z",
+    "end": "2024-12-31T23:59:59Z"
+  }
+}
+```
+
+## Authentication
+
+### API Key Authentication
+Set the `OPENSVM_API_KEY` environment variable:
+```bash
+export OPENSVM_API_KEY="your-api-key"
+```
+
+### JWT Authentication
+Set the `OPENSVM_JWT_TOKEN` environment variable:
+```bash
+export OPENSVM_JWT_TOKEN="your-jwt-token"
+```
+
+## Error Handling
+
+All tools return structured error responses:
+
+```json
+{
+  "content": [{
+    "type": "text",
+    "text": "API Error (404): Transaction not found"
+  }],
+  "isError": true
+}
+```
+
+Common error codes:
+- `400` - Invalid parameters
+- `401` - Authentication required
+- `403` - Permission denied
+- `404` - Resource not found
+- `429` - Rate limit exceeded
+- `500` - Internal server error
+
+## Rate Limits
+
+- Standard tier: 100 requests/minute
+- Premium tier: 1000 requests/minute
+- Batch operations count as single request
+- WebSocket connections: 10 concurrent per API key
+
+## Best Practices
+
+1. **Use batch operations** when fetching multiple transactions or accounts
+2. **Cache results** where appropriate to reduce API calls
+3. **Use specific tools** (get_transaction) rather than generic RPC calls when available
+4. **Include error handling** for network issues and invalid responses
+5. **Monitor usage** with get_usage_stats tool
+6. **Use pagination** for large result sets (before/after cursors)
+7. **Validate inputs** before making API calls (address format, signature length)
+
+## Support & Resources
+
+- API Documentation: https://osvm.ai/docs
+- GitHub: https://github.com/openSVM/osvm-mcp
+- Discord: https://discord.gg/opensvm
+- API Status: https://status.osvm.ai
+
+## Version History
+
+- v1.0.0: Initial release with 85+ endpoints
+- Full Solana RPC compatibility via proxy
+- Enhanced transaction parsing and analysis
+- AI-powered insights and explanations
