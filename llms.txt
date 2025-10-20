@@ -5,7 +5,7 @@
 ## Overview
 
 - **Purpose**: Programmatic Solana blockchain access via MCP
-- **Tools**: 31 specialized tools + direct RPC access to 50+ Solana methods
+- **Tools**: 31 specialized tools + direct RPC access to 90+ Solana methods
 - **Transport**: MCP over stdio
 - **Base URL**: https://osvm.ai/api
 - **Auth**: `OPENSVM_API_KEY` or `OPENSVM_JWT_TOKEN` env vars
@@ -14,7 +14,7 @@
 
 ✅ `get_transaction` - getParsedTransaction equivalent with enhanced parsing
 ✅ `batch_transactions` - Batch fetch up to 20 transactions (1 API call)
-✅ `solana_rpc_call` - Direct access to all standard Solana RPC methods
+✅ `solana_rpc_call` - Direct access to ALL 90+ standard Solana RPC methods including WebSocket subscriptions
 ✅ `analyze_transaction` + `explain_transaction` - AI-powered insights
 
 
@@ -104,76 +104,120 @@
 
 | Tool | Purpose | Key Params | Endpoint |
 |------|---------|------------|----------|
-| `solana_rpc_call` | Call any Solana RPC method (50+ supported) | method*, params[] | POST /solana-rpc |
+| `solana_rpc_call` | Call any Solana RPC method (90+ supported) | method*, params[] | POST /solana-rpc |
 
 *Note: `*` indicates required parameter*
 
 
-## Solana RPC Methods Reference
+## Solana RPC Methods Reference (90+ methods)
 
 All methods below can be called via **solana_rpc_call** tool.
 
-### Transaction Methods
-- `getParsedTransaction` - Get parsed transaction with detailed instruction breakdown
-- `getTransaction` - Get raw transaction data  
-- `getSignaturesForAddress` - Get all transaction signatures for an address
-- `getSignatureStatuses` - Check status of transaction signatures
-- `sendTransaction` - Submit a transaction to the cluster
-- `simulateTransaction` - Simulate a transaction without committing
-
-### Account Methods
+### Account Methods (11)
 - `getAccountInfo` - Get data and metadata for an account
 - `getBalance` - Get SOL balance for an account
-- `getMultipleAccounts` - Batch get multiple accounts
 - `getProgramAccounts` - Get all accounts owned by a program
-- `getTokenAccountBalance` - Get SPL token account balance
-- `getTokenAccountsByOwner` - Get all token accounts for an owner
-- `getTokenAccountsByDelegate` - Get token accounts by delegate
-
-### Block Methods
-- `getBlock` - Get a confirmed block with transaction data
-- `getBlockHeight` - Get current block height
-- `getBlocks` - Get list of confirmed blocks
-- `getBlockTime` - Get estimated production time of a block
-- `getFirstAvailableBlock` - Get slot of first available block
-- `getBlockCommitment` - Get block commitment
-- `getBlockProduction` - Get block production information
-
-### Network & Cluster Methods
-- `getClusterNodes` - Get information about cluster nodes
-- `getEpochInfo` - Get current epoch information
-- `getHealth` - Check if node is healthy
-- `getVersion` - Get Solana version
-- `getVoteAccounts` - Get vote account information
-- `getIdentity` - Get node identity
-
-### Token & Supply Methods
-- `getTokenSupply` - Get total supply of a token
-- `getTokenLargestAccounts` - Get largest accounts for a token
-- `getSupply` - Get information about current supply
-
-### Fee & Performance Methods
-- `getFeeForMessage` - Estimate fee for a message
-- `getRecentPrioritizationFees` - Get recent prioritization fees
-- `getRecentPerformanceSamples` - Get recent performance samples
+- `getMultipleAccounts` - Batch get multiple accounts
+- `getLargestAccounts` - Get 20 largest accounts by lamport balance
 - `getMinimumBalanceForRentExemption` - Get minimum balance for rent exemption
+- `getAccountInfoAndContext` - Get account info with context (slot info)
+- `getBalanceAndContext` - Get balance with context (slot info)
+- `getMultipleAccountsAndContext` - Get multiple accounts with context (slot info)
+- `getProgramAccountsAndContext` - Get program accounts with context (slot info)
+- `getAccountOwner` - Get the owner of an account
 
-### Validator & Staking Methods
-- `getLeaderSchedule` - Get leader schedule
-- `getStakeActivation` - Get stake activation info
-- `getInflationRate` - Get current inflation rate
-- `getInflationGovernor` - Get inflation governor config
-- `getInflationReward` - Get inflation reward
-- `getStakeMinimumDelegation` - Get minimum stake delegation
+### Transaction Methods (10)
+- `getTransaction` - Get transaction details
+- `getParsedTransaction` - Get parsed transaction with detailed instruction breakdown
+- `getSignaturesForAddress` - Get all transaction signatures for an address
+- `getSignatureStatuses` - Get signature confirmation statuses
+- `sendTransaction` - Submit a transaction to the cluster
+- `simulateTransaction` - Simulate sending a transaction
+- `getBlockTime` - Get estimated production time of a block
+- `getFeeForMessage` - Get the fee for a message
+- `getTransactionWithConfig` - Get transaction details with additional configuration
+- `getTransactionCount` - Get total transaction count from ledger
 
-### Other Methods
-- `getGenesisHash` - Get genesis hash
-- `getLatestBlockhash` - Get latest blockhash
-- `getSlot` - Get current slot
-- `getSlotLeader` - Get current slot leader
-- `getTransactionCount` - Get total transaction count
-- `isBlockhashValid` - Check if blockhash is valid
-- `requestAirdrop` - Request airdrop (testnet/devnet only)
+### Block Methods (14)
+- `getSlot` - Get the current slot the node is processing
+- `getBlock` - Get identity and transaction information about a confirmed block
+- `getBlockHeight` - Get current block height
+- `getBlocks` - Get a list of confirmed blocks between two slots
+- `getBlocksWithLimit` - Get a list of confirmed blocks starting at given slot
+- `getFirstAvailableBlock` - Get the lowest confirmed block still available
+- `getGenesisHash` - Get the genesis hash of the ledger
+- `getSlotLeaders` - Get slot leaders for a given slot range
+- `getBlockProduction` - Get recent block production information
+- `getVoteAccounts` - Get account info and stake for all voting accounts
+- `getLeaderSchedule` - Get the leader schedule for an epoch
+- `getBlockCommitment` - Get block commitment information for a specific slot
+- `getConfirmedBlock` - DEPRECATED version of getBlock
+- `getConfirmedBlocks` - DEPRECATED version of getBlocks
+- `getConfirmedBlocksWithLimit` - DEPRECATED version of getBlocksWithLimit
+
+### System Methods (25)
+- `getHealth` - Get the current health of the node
+- `getVersion` - Get the current Solana version
+- `getIdentity` - Get identity pubkey for the current node
+- `getEpochInfo` - Get information about the current epoch
+- `getEpochSchedule` - Get epoch schedule information
+- `getLatestBlockhash` - Get the latest blockhash
+- `getSupply` - Get information about current supply
+- `getClusterNodes` - Get information about all cluster nodes
+- `getInflationGovernor` - Get current inflation governor
+- `getInflationRate` - Get specific inflation values for current epoch
+- `getInflationReward` - Get inflation reward for list of addresses
+- `getStakeMinimumDelegation` - Get stake minimum delegation
+- `getStakeActivation` - Get stake activation information for a stake account
+- `isBlockhashValid` - Check if a blockhash is still valid
+- `getSlotLeader` - Get the current slot leader
+- `minimumLedgerSlot` - Get the minimum ledger slot available
+- `getMaxRetransmitSlot` - Get the max slot seen from retransmit stage
+- `getMaxShredInsertSlot` - Get the max slot seen from shred insert
+- `getHighestSnapshotSlot` - Get highest snapshot slot
+- `getSnapshotSlot` - Get the current snapshot slot
+- `getRecentPerformanceSamples` - Get recent performance samples from the cluster
+- `getRecentPrioritizationFees` - Get recent prioritization fees for transactions
+- `requestAirdrop` - Request an airdrop of lamports to a Pubkey
+- `getRecentBlockhash` - DEPRECATED version of getLatestBlockhash
+- `getFees` - DEPRECATED method for getting fees
+
+### Token Methods (6)
+- `getTokenAccountsByOwner` - Get all token accounts by token owner
+- `getTokenSupply` - Get total supply of an SPL Token type
+- `getTokenAccountBalance` - Get token balance of an SPL Token account
+- `getTokenAccountsByDelegate` - Get all token accounts by approved delegate
+- `getTokenLargestAccounts` - Get 20 largest accounts of a token type
+- `getTokenAccountsByMint` - Get all token accounts by token mint
+
+### WebSocket Subscription Methods (18)
+- `accountSubscribe` - Subscribe to account changes
+- `accountUnsubscribe` - Unsubscribe from account changes
+- `blockSubscribe` - Subscribe to block changes
+- `blockUnsubscribe` - Unsubscribe from block changes
+- `logsSubscribe` - Subscribe to transaction logs
+- `logsUnsubscribe` - Unsubscribe from logs
+- `programSubscribe` - Subscribe to program account changes
+- `programUnsubscribe` - Unsubscribe from program changes
+- `rootSubscribe` - Subscribe to root changes
+- `rootUnsubscribe` - Unsubscribe from root changes
+- `signatureSubscribe` - Subscribe to transaction signature
+- `signatureUnsubscribe` - Unsubscribe from signature
+- `slotSubscribe` - Subscribe to slot changes
+- `slotUnsubscribe` - Unsubscribe from slot changes
+- `slotsUpdatesSubscribe` - Subscribe to slot update notifications
+- `slotsUpdatesUnsubscribe` - Unsubscribe from slot updates
+- `voteSubscribe` - Subscribe to vote notifications
+- `voteUnsubscribe` - Unsubscribe from vote notifications
+
+### Deprecated Methods (7)
+- `getConfirmedBlock` - Use getBlock instead
+- `getConfirmedBlocks` - Use getBlocks instead
+- `getConfirmedBlocksWithLimit` - Use getBlocksWithLimit instead
+- `getConfirmedTransaction` - Use getTransaction instead
+- `getConfirmedSignaturesForAddress2` - Use getSignaturesForAddress instead
+- `getRecentBlockhash` - Use getLatestBlockhash instead
+- `getFees` - Use getFeeForMessage instead
 
 
 ## Usage Examples
