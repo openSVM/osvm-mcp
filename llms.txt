@@ -582,7 +582,7 @@ This MCP server provides comprehensive access to the Solana blockchain via the O
   "arguments": {
     "method": "getTokenAccountsByOwner",
     "params": [
-      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "7BgBvyjrZX1YKz4oh9mjb8ZScatkkwb8DzFx7LoiVkM3",
       { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
       { "encoding": "jsonParsed" }
     ]
