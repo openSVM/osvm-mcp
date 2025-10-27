@@ -984,7 +984,7 @@ class OpenSVMServer {
 
       // Utility Tools
       case 'solana_rpc_call':
-        const rpcResult = await this.client.post('/solana-rpc', {
+        const rpcResult = await this.client.post('/proxy/rpc', {
           jsonrpc: '2.0',
           id: Date.now(),
           method: args.method,

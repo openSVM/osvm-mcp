@@ -267,6 +267,24 @@ test_search_tools() {
     validate_json "$response" "universal_search returns valid JSON"
 }
 
+# Test utility tools
+test_utility_tools() {
+    print_header "Testing Utility Tools"
+
+    # Test solana_rpc_call
+    echo -e "\n${YELLOW}Testing solana_rpc_call...${NC}"
+    local response=$(call_mcp_tool "solana_rpc_call" "{\"method\":\"getSlot\"}")
+    validate_json "$response" "solana_rpc_call returns valid JSON"
+
+    local content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.result' "solana_rpc_call has result"
+
+    # Test with parameters
+    echo -e "\n${YELLOW}Testing solana_rpc_call with getVersion...${NC}"
+    response=$(call_mcp_tool "solana_rpc_call" "{\"method\":\"getVersion\"}")
+    validate_json "$response" "solana_rpc_call with getVersion returns valid JSON"
+}
+
 # Print summary
 print_summary() {
     print_header "Test Summary"
@@ -306,6 +324,7 @@ main() {
     test_analytics_tools
     test_token_tools
     test_search_tools
+    test_utility_tools
 
     # Print summary
     print_summary
