@@ -1035,13 +1035,13 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid Solana address format');
         }
         const portfolioData = await this.client.get(`/account-portfolio/${args.address}`);
-        // Extract just the native SOL balance from portfolio
+        // Extract just the native SOL balance from portfolio (API returns data.native)
         const balanceInfo = {
           address: args.address,
-          balance: portfolioData.native?.balance || 0,
-          price: portfolioData.native?.price || 0,
-          value: portfolioData.native?.value || 0,
-          change24h: portfolioData.native?.change24h || 0
+          balance: portfolioData.data?.native?.balance || 0,
+          price: portfolioData.data?.native?.price || 0,
+          value: portfolioData.data?.native?.value || 0,
+          change24h: portfolioData.data?.native?.change24h || 0
         };
         return {
           content: [{
