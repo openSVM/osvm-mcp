@@ -121,7 +121,7 @@ class OpenSVMServer {
         // Transaction Tools
         {
           name: 'get_transaction',
-          description: 'Get detailed transaction information with enhanced parsing',
+          description: 'Get detailed transaction information. Returns: {signature, timestamp: number (ms), slot: number, success: boolean, type: "sol"|"token", details: {instructions: [...], accounts: [...], preBalances: number[], postBalances: number[], tokenChanges: [...], solChanges: [...], logs: string[]}}. Use case: Transaction verification, debugging failed transactions, analyzing program interactions, tracking token transfers.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -132,7 +132,7 @@ class OpenSVMServer {
         },
         {
           name: 'batch_transactions',
-          description: 'Batch fetch multiple transactions',
+          description: 'Fetch multiple transactions in one call (up to 20). Returns: array of transaction objects. More efficient than individual calls. Use case: Bulk transaction analysis, historical data collection, parallel processing of multiple transactions.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -142,31 +142,31 @@ class OpenSVMServer {
                 description: 'Array of transaction signatures (max 20)',
                 maxItems: 20
               },
-              includeDetails: { type: 'boolean', description: 'Include detailed transaction information' }
+              includeDetails: { type: 'boolean', description: 'Include full transaction details (default true)' }
             },
             required: ['signatures']
           }
         },
         {
           name: 'analyze_transaction',
-          description: 'AI-powered transaction analysis',
+          description: 'AI-powered transaction analysis. Returns: structured analysis including detected programs, token transfers, NFT actions, DeFi interactions, security insights. Use case: Understand complex transactions, detect MEV, identify malicious behavior, explain DeFi operations.',
           inputSchema: {
             type: 'object',
             properties: {
-              signature: { type: 'string', description: 'Transaction signature' },
-              model: { type: 'string', description: 'AI model to use (optional)' }
+              signature: { type: 'string', description: 'Transaction signature (base58, 87-88 chars)' },
+              model: { type: 'string', description: 'AI model to use: "gpt-4", "claude", etc. (optional)' }
             },
             required: ['signature']
           }
         },
         {
           name: 'explain_transaction',
-          description: 'Get natural language explanation of a transaction',
+          description: 'Get human-readable explanation of transaction. Returns: natural language summary of what happened in the transaction. Use case: User-friendly transaction summaries, educational purposes, non-technical explanations.',
           inputSchema: {
             type: 'object',
             properties: {
-              signature: { type: 'string', description: 'Transaction signature' },
-              language: { type: 'string', description: 'Output language (optional)' }
+              signature: { type: 'string', description: 'Transaction signature (base58, 87-88 chars)' },
+              language: { type: 'string', description: 'Output language: "en", "es", "zh", etc. (default "en")' }
             },
             required: ['signature']
           }
@@ -174,70 +174,70 @@ class OpenSVMServer {
         // Account Tools
         {
           name: 'get_account_stats',
-          description: 'Get account transaction statistics (total transactions, token transfers, last updated) - NOTE: Does NOT include balance! Use get_account_portfolio for SOL balance.',
+          description: 'Get account activity statistics. Returns: {totalTransactions: string (e.g. "3000+"), tokenTransfers: number, lastUpdated: timestamp}. NOTE: Does NOT include balance! Use get_account_portfolio for SOL balance. Use case: Check account activity level, transaction volume analysis, bot detection.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Solana account address' }
+              address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
           }
         },
         {
           name: 'get_account_portfolio',
-          description: 'Get complete account portfolio including SOL balance, token holdings, prices, and total portfolio value in USD',
+          description: 'Get complete account portfolio with prices. Returns: {address, timestamp, data: {native: {balance: number, symbol: "SOL", price: number, value: number, change24h: number}, tokens: [{balance, symbol, name, price, value}...], totalValue: number, totalTokens: number, summary: {hasData, dataSource, pricesAvailable}}}. Use case: Portfolio tracking, wallet analysis, asset valuation, DeFi position monitoring.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Solana account address' }
+              address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
           }
         },
         {
           name: 'get_solana_balance',
-          description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_portfolio that returns only native SOL balance',
+          description: 'Get SOL balance and all token holdings (same as get_account_portfolio). Returns: {address, timestamp, native: {balance, symbol, name, decimals, price, value, change24h}, tokens: [...], totalValue, totalTokens, summary}. Use case: Quick balance check, portfolio overview, wallet monitoring.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Solana account address' }
+              address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
           }
         },
         {
           name: 'get_account_transactions',
-          description: 'Get account transaction history',
+          description: 'Get paginated transaction history for account. Returns: array of transaction objects with {signature, timestamp, slot, status, type}. Supports pagination via "before" cursor. Use case: Transaction history tracking, account activity analysis, audit trails, finding specific transactions.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Solana account address' },
-              limit: { type: 'number', description: 'Number of transactions to return (max 100)', maximum: 100 },
-              before: { type: 'string', description: 'Pagination cursor' },
-              type: { type: 'string', description: 'Transaction type filter' }
+              address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' },
+              limit: { type: 'number', description: 'Number of transactions to return (max 100, default 20)', maximum: 100 },
+              before: { type: 'string', description: 'Pagination cursor (signature) to fetch older transactions' },
+              type: { type: 'string', description: 'Filter by transaction type: "token", "sol", "nft", etc.' }
             },
             required: ['address']
           }
         },
         {
           name: 'get_account_token_stats',
-          description: 'Get token statistics for specific account',
+          description: 'Get specific token statistics for an account/mint pair. Returns: token balance, transfer count, and activity metrics for a specific token held by an account. Use case: Track specific token holdings, analyze token-specific activity, monitor airdrop claims.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Account address' },
-              mint: { type: 'string', description: 'Token mint address' }
+              address: { type: 'string', description: 'Account address holding the token' },
+              mint: { type: 'string', description: 'Token mint address to query stats for' }
             },
             required: ['address', 'mint']
           }
         },
         {
           name: 'check_account_type',
-          description: 'Determine account type (wallet, program, token, etc.)',
+          description: 'Identify account type. Returns: {type: "wallet"|"program"|"token"|"nft"|"system", details: {...}}. Use case: Distinguish between user wallets, smart contracts, token accounts, validate address types before operations.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Account address to check' }
+              address: { type: 'string', description: 'Solana account address to identify (base58, 32-44 chars)' }
             },
             required: ['address']
           }
@@ -245,29 +245,29 @@ class OpenSVMServer {
         // Block Tools
         {
           name: 'get_block',
-          description: 'Get specific block information',
+          description: 'Get detailed block information by slot. Returns: {slot: number, blockhash: string, transactions: [...], blockTime: number, blockHeight: number}. Use case: Block verification, analyze block contents, find transactions in specific block, blockchain forensics.',
           inputSchema: {
             type: 'object',
             properties: {
-              slot: { type: 'number', description: 'Block slot number' }
+              slot: { type: 'number', description: 'Block slot number (positive integer)' }
             },
             required: ['slot']
           }
         },
         {
           name: 'get_recent_blocks',
-          description: 'List recent blocks',
+          description: 'Get list of recent blocks with pagination. Returns: array of {slot, blockhash, transactionCount, blockTime}. Use case: Monitor latest blocks, blockchain explorer, real-time block analysis.',
           inputSchema: {
             type: 'object',
             properties: {
-              limit: { type: 'number', description: 'Number of blocks to return (default 20)' },
-              before: { type: 'number', description: 'Slot number for pagination' }
+              limit: { type: 'number', description: 'Number of blocks to return (default 20, max 100)' },
+              before: { type: 'number', description: 'Slot number to fetch blocks before (for pagination)' }
             }
           }
         },
         {
           name: 'get_block_stats',
-          description: 'Get block statistics and performance metrics',
+          description: 'Get blockchain statistics and performance metrics. Returns: {currentSlot, avgBlockTime, tps, recentBlockTimes: number[]}. Use case: Network performance monitoring, TPS calculation, blockchain health checks.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -276,31 +276,31 @@ class OpenSVMServer {
         // Search Tools
         {
           name: 'universal_search',
-          description: 'Search across all data types (accounts, transactions, tokens, programs)',
+          description: 'Universal search across accounts, transactions, tokens, programs. Returns: {results: [...], type: string, count: number}. Accepts addresses, signatures, token names. Use case: Find any blockchain entity, multi-type search, discovery, address/signature lookup.',
           inputSchema: {
             type: 'object',
             properties: {
-              query: { type: 'string', description: 'Search query (address, signature, token name)' },
-              type: { type: 'string', enum: ['account', 'transaction', 'token', 'program'], description: 'Filter by type' },
-              start: { type: 'string', description: 'Start date ISO string' },
-              end: { type: 'string', description: 'End date ISO string' },
-              status: { type: 'string', enum: ['success', 'failed'], description: 'Transaction status filter' },
-              min: { type: 'number', description: 'Minimum amount' },
-              max: { type: 'number', description: 'Maximum amount' }
+              query: { type: 'string', description: 'Search query: address, signature, token symbol/name, or program name' },
+              type: { type: 'string', enum: ['account', 'transaction', 'token', 'program'], description: 'Filter results by type (optional)' },
+              start: { type: 'string', description: 'Start date filter (ISO string, optional)' },
+              end: { type: 'string', description: 'End date filter (ISO string, optional)' },
+              status: { type: 'string', enum: ['success', 'failed'], description: 'Transaction status filter (optional)' },
+              min: { type: 'number', description: 'Minimum amount filter (optional)' },
+              max: { type: 'number', description: 'Maximum amount filter (optional)' }
             },
             required: ['query']
           }
         },
         {
           name: 'search_accounts',
-          description: 'Account-specific search with filters',
+          description: 'Advanced account search with balance and token filters. Returns: array of account objects matching criteria. Use case: Find wallets by balance range, token holder search, whale detection, airdrop targeting.',
           inputSchema: {
             type: 'object',
             properties: {
-              query: { type: 'string', description: 'Search query' },
-              tokenMint: { type: 'string', description: 'Filter by token mint address' },
-              minBalance: { type: 'number', description: 'Minimum balance filter' },
-              maxBalance: { type: 'number', description: 'Maximum balance filter' }
+              query: { type: 'string', description: 'Search query (address, ENS name, label)' },
+              tokenMint: { type: 'string', description: 'Filter accounts holding specific token mint' },
+              minBalance: { type: 'number', description: 'Minimum SOL balance filter (in SOL)' },
+              maxBalance: { type: 'number', description: 'Maximum SOL balance filter (in SOL)' }
             },
             required: ['query']
           }
@@ -308,7 +308,7 @@ class OpenSVMServer {
         // Analytics Tools
         {
           name: 'get_defi_overview',
-          description: 'Get comprehensive DeFi ecosystem overview',
+          description: 'Get Solana DeFi ecosystem overview. Returns: {totalTvl: number, totalVolume24h: number, activeDexes: number, totalTransactions: number, topProtocols: [{name, tvl, volume24h, category}...]}. Use case: DeFi market analysis, TVL tracking, protocol comparison, market research.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -316,18 +316,18 @@ class OpenSVMServer {
         },
         {
           name: 'get_dex_analytics',
-          description: 'Get DEX-specific analytics with real-time prices',
+          description: 'Get DEX-specific trading analytics. Returns: {dex: string, volume: number, trades: number, uniqueTraders: number, topPairs: [...], priceImpact: {...}}. Use case: DEX performance tracking, trading volume analysis, liquidity monitoring, arbitrage opportunities.',
           inputSchema: {
             type: 'object',
             properties: {
-              dex: { type: 'string', description: 'Specific DEX name' },
-              timeframe: { type: 'string', enum: ['1h', '24h', '7d'], description: 'Time period' }
+              dex: { type: 'string', description: 'DEX name: "raydium", "orca", "jupiter", "meteora", etc.' },
+              timeframe: { type: 'string', enum: ['1h', '24h', '7d'], description: 'Time period for analytics (default "24h")' }
             }
           }
         },
         {
           name: 'get_defi_health',
-          description: 'Get DeFi ecosystem health metrics',
+          description: 'Get DeFi ecosystem health indicators. Returns: {riskScore: number, liquidityDepth: number, marketStability: number, alerts: string[]}. Use case: Risk assessment, market health monitoring, identify systemic risks, DeFi safety checks.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -335,7 +335,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_validator_analytics',
-          description: 'Get validator network analytics',
+          description: 'Get Solana validator network statistics. Returns: {totalValidators: number, activeStake: number, averageCommission: number, decentralization: {...}, topValidators: [...]}. Use case: Network health monitoring, stake distribution analysis, validator selection, decentralization metrics.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -344,25 +344,25 @@ class OpenSVMServer {
         // Token & NFT Tools
         {
           name: 'get_token_info',
-          description: 'Get token details and metadata',
+          description: 'Get SPL token details and metadata. Returns: {metadata: {name, symbol, description, uri}, supply: number, decimals: number, holders: number, volume24h: number, isInitialized: boolean, freezeAuthority, mintAuthority}. Use case: Token research, verify token legitimacy, check supply/holders, integration validation.',
           inputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Token mint address' }
+              address: { type: 'string', description: 'SPL token mint address (base58, 32-44 chars)' }
             },
             required: ['address']
           }
         },
         {
           name: 'get_token_metadata',
-          description: 'Batch token metadata lookup',
+          description: 'Batch fetch token metadata for multiple mints. Returns: array of {mint, metadata, supply, decimals}. More efficient than individual calls. Use case: Portfolio token info, multi-token analysis, batch validation.',
           inputSchema: {
             type: 'object',
             properties: {
               mints: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Array of token mint addresses'
+                description: 'Array of SPL token mint addresses (max 50 recommended)'
               }
             },
             required: ['mints']
@@ -370,18 +370,18 @@ class OpenSVMServer {
         },
         {
           name: 'get_nft_collections',
-          description: 'List NFT collections',
+          description: 'List NFT collections with stats. Returns: array of {name, symbol, floorPrice, volume24h, totalItems, listed, verified}. Use case: NFT marketplace data, collection discovery, floor price tracking, volume analysis.',
           inputSchema: {
             type: 'object',
             properties: {
-              limit: { type: 'number', description: 'Number of collections to return' },
-              sort: { type: 'string', enum: ['volume', 'floor', 'items'], description: 'Sort criteria' }
+              limit: { type: 'number', description: 'Number of collections to return (default 20, max 100)' },
+              sort: { type: 'string', enum: ['volume', 'floor', 'items'], description: 'Sort by volume24h, floor price, or item count (default "volume")' }
             }
           }
         },
         {
           name: 'get_trending_nfts',
-          description: 'Get trending NFT collections',
+          description: 'Get trending NFT collections (24h volume). Returns: array of trending collections sorted by volume spike. Use case: Identify hot NFT collections, market trends, viral collections, trading opportunities.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -390,25 +390,25 @@ class OpenSVMServer {
         // User Management Tools
         {
           name: 'verify_wallet_signature',
-          description: 'Verify wallet signature for authentication',
+          description: 'Verify Solana wallet signature for authentication. Returns: {valid: boolean, address: string}. Use case: Wallet-based auth, sign-in with Solana, verify message ownership, secure authentication.',
           inputSchema: {
             type: 'object',
             properties: {
-              message: { type: 'string', description: 'Message that was signed' },
-              signature: { type: 'string', description: 'Wallet signature' },
-              publicKey: { type: 'string', description: 'Public key of the wallet' }
+              message: { type: 'string', description: 'Original message that was signed by the wallet' },
+              signature: { type: 'string', description: 'Signature bytes from wallet.signMessage() (base58)' },
+              publicKey: { type: 'string', description: 'Public key of the signing wallet (base58)' }
             },
             required: ['message', 'signature', 'publicKey']
           }
         },
         {
           name: 'get_user_history',
-          description: 'Get user transaction history',
+          description: 'Get user transaction history by wallet. Returns: array of user transactions. Use case: User activity tracking, transaction history display, account analysis.',
           inputSchema: {
             type: 'object',
             properties: {
-              walletAddress: { type: 'string', description: 'User wallet address' },
-              limit: { type: 'number', description: 'Number of transactions to return' }
+              walletAddress: { type: 'string', description: 'User wallet address (base58, 32-44 chars)' },
+              limit: { type: 'number', description: 'Number of transactions to return (default 20, max 100)' }
             },
             required: ['walletAddress']
           }
@@ -416,7 +416,7 @@ class OpenSVMServer {
         // Monetization Tools
         {
           name: 'get_balance',
-          description: 'Get user SVMAI token balance (requires JWT) - NOTE: This is for SVMAI tokens only, NOT Solana/SOL balance! Use get_account_stats or get_solana_balance for Solana account balance.',
+          description: 'Get SVMAI token balance for API billing (requires JWT auth). Returns: {balance: number, reserved: number, available: number, sufficient: boolean}. NOTE: This is SVMAI tokens for API payments, NOT Solana/SOL! Use get_account_portfolio for SOL balance. Use case: Check API credit balance, billing management, payment verification.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -424,7 +424,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_usage_stats',
-          description: 'Track API usage and metrics',
+          description: 'Get API usage statistics and billing info (requires JWT). Returns: {totalRequests: number, totalTokensSpent: number, avgCostPerRequest: number, recentTransactions: [...]}. Use case: Track API consumption, analyze costs, budget monitoring, usage optimization.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -432,17 +432,17 @@ class OpenSVMServer {
         },
         {
           name: 'manage_api_keys',
-          description: 'List, create, or manage API keys',
+          description: 'Manage Anthropic API keys (requires JWT). Actions: list (get all keys), create (generate new key), delete (revoke key). Returns: key objects with id, name, permissions, created date. Use case: API key lifecycle management, access control, security management.',
           inputSchema: {
             type: 'object',
             properties: {
-              action: { type: 'string', enum: ['list', 'create', 'delete'], description: 'Action to perform' },
-              keyId: { type: 'string', description: 'Key ID for delete action' },
-              name: { type: 'string', description: 'Name for new key' },
+              action: { type: 'string', enum: ['list', 'create', 'delete'], description: 'Action: list, create, or delete' },
+              keyId: { type: 'string', description: 'Key ID to delete (required for delete action)' },
+              name: { type: 'string', description: 'Name for new API key (required for create action)' },
               permissions: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Permissions for new key'
+                description: 'Permission scopes for new key: ["read", "write", "admin"] (for create action)'
               }
             },
             required: ['action']
@@ -451,7 +451,7 @@ class OpenSVMServer {
         // Infrastructure Tools
         {
           name: 'get_api_metrics',
-          description: 'Get API performance metrics',
+          description: 'Get OpenSVM API performance metrics. Returns: {uptime: number, avgResponseTime: number, requestsPerSecond: number, errorRate: number, cacheHitRate: number}. Use case: Monitor API health, performance tracking, SLA verification, system diagnostics.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -459,14 +459,14 @@ class OpenSVMServer {
         },
         {
           name: 'report_error',
-          description: 'Report client-side errors',
+          description: 'Report client-side errors to OpenSVM. Returns: {reported: boolean, errorId: string}. Use case: Error tracking, bug reports, telemetry, improve API reliability.',
           inputSchema: {
             type: 'object',
             properties: {
-              message: { type: 'string', description: 'Error message' },
-              stack: { type: 'string', description: 'Error stack trace' },
-              url: { type: 'string', description: 'URL where error occurred' },
-              userAgent: { type: 'string', description: 'User agent string' }
+              message: { type: 'string', description: 'Error message or description' },
+              stack: { type: 'string', description: 'Error stack trace (optional but recommended)' },
+              url: { type: 'string', description: 'URL/endpoint where error occurred (optional)' },
+              userAgent: { type: 'string', description: 'Browser/client user agent string (optional)' }
             },
             required: ['message']
           }
@@ -474,22 +474,22 @@ class OpenSVMServer {
         // Program Registry Tools
         {
           name: 'get_program_registry',
-          description: 'List registered Solana programs',
+          description: 'List registered Solana programs with metadata. Returns: array of {programId, name, category, verified: boolean, description, website, audit}. Use case: Discover Solana programs, program verification, integration research, find DeFi protocols.',
           inputSchema: {
             type: 'object',
             properties: {
-              category: { type: 'string', description: 'Program category filter' },
-              verified: { type: 'boolean', description: 'Show only verified programs' }
+              category: { type: 'string', description: 'Filter by category: "defi", "nft", "gaming", "infrastructure", etc.' },
+              verified: { type: 'boolean', description: 'Show only verified/audited programs (default false)' }
             }
           }
         },
         {
           name: 'get_program_info',
-          description: 'Get specific program details and metadata',
+          description: 'Get detailed program information and metadata. Returns: {programId, name, category, verified, description, website, github, audit, deployDate, upgradeAuthority}. Use case: Program due diligence, verify program authenticity, integration validation, security research.',
           inputSchema: {
             type: 'object',
             properties: {
-              programId: { type: 'string', description: 'Program address' }
+              programId: { type: 'string', description: 'Solana program address (base58, 32-44 chars)' }
             },
             required: ['programId']
           }
@@ -497,14 +497,14 @@ class OpenSVMServer {
         // Utility Tools
         {
           name: 'solana_rpc_call',
-          description: 'Make direct Solana RPC calls through OpenSVM proxy',
+          description: 'Make direct Solana RPC calls through OpenSVM proxy. Returns: standard Solana RPC response for the method. Supports all 90+ Solana RPC methods (getAccountInfo, getTransaction, getBlock, etc.). Use case: Access methods not wrapped by other tools, custom RPC queries, advanced blockchain operations, direct node access.',
           inputSchema: {
             type: 'object',
             properties: {
-              method: { type: 'string', description: 'RPC method name' },
+              method: { type: 'string', description: 'Solana RPC method name (e.g., "getAccountInfo", "getBlock", "getTransaction")' },
               params: {
                 type: 'array',
-                description: 'RPC method parameters'
+                description: 'Method parameters as array (e.g., [address, {encoding: "jsonParsed"}])'
               }
             },
             required: ['method']
