@@ -174,7 +174,18 @@ class OpenSVMServer {
         // Account Tools
         {
           name: 'get_account_stats',
-          description: 'Get comprehensive Solana account statistics including SOL balance, lamports, transaction count, and account metadata',
+          description: 'Get account transaction statistics (total transactions, token transfers, last updated) - NOTE: Does NOT include balance! Use get_account_portfolio for SOL balance.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Solana account address' }
+            },
+            required: ['address']
+          }
+        },
+        {
+          name: 'get_account_portfolio',
+          description: 'Get complete account portfolio including SOL balance, token holdings, prices, and total portfolio value in USD',
           inputSchema: {
             type: 'object',
             properties: {
@@ -185,7 +196,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_solana_balance',
-          description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_stats that returns only the balance',
+          description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_portfolio that returns only native SOL balance',
           inputSchema: {
             type: 'object',
             properties: {
@@ -595,7 +606,18 @@ class OpenSVMServer {
           // Account Tools
           {
             name: 'get_account_stats',
-            description: 'Get comprehensive Solana account statistics including SOL balance, lamports, transaction count, and account metadata',
+            description: 'Get account transaction statistics (total transactions, token transfers, last updated) - NOTE: Does NOT include balance! Use get_account_portfolio for SOL balance.',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Solana account address' }
+              },
+              required: ['address']
+            }
+          },
+          {
+            name: 'get_account_portfolio',
+            description: 'Get complete account portfolio including SOL balance, token holdings, prices, and total portfolio value in USD',
             inputSchema: {
               type: 'object',
               properties: {
@@ -606,7 +628,7 @@ class OpenSVMServer {
           },
           {
             name: 'get_solana_balance',
-            description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_stats that returns only the balance',
+            description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_portfolio that returns only native SOL balance',
             inputSchema: {
               type: 'object',
               properties: {
@@ -996,17 +1018,30 @@ class OpenSVMServer {
           }]
         };
 
+      case 'get_account_portfolio':
+        if (!isValidSolanaAddress(args.address)) {
+          throw new McpError(ErrorCode.InvalidParams, 'Invalid Solana address format');
+        }
+        const portfolio = await this.client.get(`/account-portfolio/${args.address}`);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(portfolio, null, 2)
+          }]
+        };
+
       case 'get_solana_balance':
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid Solana address format');
         }
-        const balanceData = await this.client.get(`/account-stats/${args.address}`);
-        // Extract just the balance information from the account stats
+        const portfolioData = await this.client.get(`/account-portfolio/${args.address}`);
+        // Extract just the native SOL balance from portfolio
         const balanceInfo = {
           address: args.address,
-          balance: balanceData.balance,
-          lamports: balanceData.lamports,
-          executable: balanceData.executable
+          balance: portfolioData.native?.balance || 0,
+          price: portfolioData.native?.price || 0,
+          value: portfolioData.native?.value || 0,
+          change24h: portfolioData.native?.change24h || 0
         };
         return {
           content: [{
