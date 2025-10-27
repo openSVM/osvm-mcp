@@ -174,7 +174,18 @@ class OpenSVMServer {
         // Account Tools
         {
           name: 'get_account_stats',
-          description: 'Get comprehensive account statistics',
+          description: 'Get comprehensive Solana account statistics including SOL balance, lamports, transaction count, and account metadata',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Solana account address' }
+            },
+            required: ['address']
+          }
+        },
+        {
+          name: 'get_solana_balance',
+          description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_stats that returns only the balance',
           inputSchema: {
             type: 'object',
             properties: {
@@ -394,7 +405,7 @@ class OpenSVMServer {
         // Monetization Tools
         {
           name: 'get_balance',
-          description: 'Get user SVMAI token balance (requires JWT)',
+          description: 'Get user SVMAI token balance (requires JWT) - NOTE: This is for SVMAI tokens only, NOT Solana/SOL balance! Use get_account_stats or get_solana_balance for Solana account balance.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -584,7 +595,18 @@ class OpenSVMServer {
           // Account Tools
           {
             name: 'get_account_stats',
-            description: 'Get comprehensive account statistics',
+            description: 'Get comprehensive Solana account statistics including SOL balance, lamports, transaction count, and account metadata',
+            inputSchema: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Solana account address' }
+              },
+              required: ['address']
+            }
+          },
+          {
+            name: 'get_solana_balance',
+            description: 'Get Solana (SOL) balance for an account - convenience wrapper around get_account_stats that returns only the balance',
             inputSchema: {
               type: 'object',
               properties: {
@@ -804,7 +826,7 @@ class OpenSVMServer {
           // Monetization Tools
           {
             name: 'get_balance',
-            description: 'Get user SVMAI token balance (requires JWT)',
+            description: 'Get user SVMAI token balance (requires JWT) - NOTE: This is for SVMAI tokens only, NOT Solana/SOL balance! Use get_account_stats or get_solana_balance for Solana account balance.',
             inputSchema: {
               type: 'object',
               properties: {}
@@ -971,6 +993,25 @@ class OpenSVMServer {
           content: [{
             type: 'text',
             text: JSON.stringify(accountStats, null, 2)
+          }]
+        };
+
+      case 'get_solana_balance':
+        if (!isValidSolanaAddress(args.address)) {
+          throw new McpError(ErrorCode.InvalidParams, 'Invalid Solana address format');
+        }
+        const balanceData = await this.client.get(`/account-stats/${args.address}`);
+        // Extract just the balance information from the account stats
+        const balanceInfo = {
+          address: args.address,
+          balance: balanceData.balance,
+          lamports: balanceData.lamports,
+          executable: balanceData.executable
+        };
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(balanceInfo, null, 2)
           }]
         };
 
