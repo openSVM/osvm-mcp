@@ -101,10 +101,7 @@ validate_field() {
 
     TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
-    # Check if field exists in JSON structure (returns "null" if exists with null value, "" if doesn't exist)
-    local field_exists=$(echo "$response" | jq -r "has($(echo "$field_path" | sed 's/\./ | has(/g; s/$/)/' | sed 's/has(\./has("/; s/)$/)"/; s/ | has(/ and has("/g; s/)/ and /g'))")
-
-    # Simpler approach: try to get the value, check if jq succeeds
+    # Try to get the value with jq
     local field_value=$(echo "$response" | jq "$field_path" 2>/dev/null)
     local jq_exit=$?
 
