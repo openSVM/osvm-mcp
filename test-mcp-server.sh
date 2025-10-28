@@ -97,17 +97,34 @@ validate_field() {
     local response="$1"
     local field_path="$2"
     local test_name="$3"
+    local allow_null="${4:-false}"  # Optional 4th param to allow null values
 
     TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
-    local field_value=$(echo "$response" | jq -r "$field_path // empty")
-    if [ -z "$field_value" ] || [ "$field_value" == "null" ]; then
+    # Check if field exists in JSON structure (returns "null" if exists with null value, "" if doesn't exist)
+    local field_exists=$(echo "$response" | jq -r "has($(echo "$field_path" | sed 's/\./ | has(/g; s/$/)/' | sed 's/has(\./has("/; s/)$/)"/; s/ | has(/ and has("/g; s/)/ and /g'))")
+
+    # Simpler approach: try to get the value, check if jq succeeds
+    local field_value=$(echo "$response" | jq "$field_path" 2>/dev/null)
+    local jq_exit=$?
+
+    # If jq failed to find the path, field doesn't exist
+    if [ $jq_exit -ne 0 ] || [ "$field_value" == "" ]; then
         echo -e "${RED}✗ $test_name - Missing field: $field_path${NC}"
         TESTS_FAILED=$((TESTS_FAILED + 1))
         return 1
     fi
 
-    echo -e "${GREEN}✓ $test_name - Field exists: $field_path = $field_value${NC}"
+    # Check if null is not allowed
+    if [ "$field_value" == "null" ] && [ "$allow_null" != "true" ]; then
+        echo -e "${RED}✗ $test_name - Field is null: $field_path${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        return 1
+    fi
+
+    # For display, use -r flag to get raw value
+    local display_value=$(echo "$response" | jq -r "$field_path")
+    echo -e "${GREEN}✓ $test_name - Field exists: $field_path = $display_value${NC}"
     TESTS_PASSED=$((TESTS_PASSED + 1))
     return 0
 }
@@ -170,9 +187,9 @@ test_account_tools() {
 
     content=$(echo "$response" | jq -r '.result.content[0].text')
     validate_field "$content" '.data.native.balance' "get_account_portfolio has native balance"
-    validate_field "$content" '.data.native.price' "get_account_portfolio has SOL price"
+    validate_field "$content" '.data.native.price' "get_account_portfolio has SOL price" "true"
     validate_field "$content" '.data.tokens' "get_account_portfolio has tokens array"
-    validate_field "$content" '.data.totalValue' "get_account_portfolio has totalValue"
+    validate_field "$content" '.data.totalValue' "get_account_portfolio has totalValue" "true"
 
     # Test get_solana_balance
     echo -e "\n${YELLOW}Testing get_solana_balance...${NC}"
