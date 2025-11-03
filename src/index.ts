@@ -17,12 +17,17 @@ import {
 import axios, { AxiosInstance } from 'axios';
 
 // Environment configuration
-const BASE_URL = process.env.OPENSVM_BASE_URL || 'https://osvm.ai/api';
+const BASE_URL = process.env.OPENSVM_BASE_URL || 'http://localhost:3000/api';
 const API_KEY = process.env.OPENSVM_API_KEY;
 const JWT_TOKEN = process.env.OPENSVM_JWT_TOKEN;
 
 /**
  * OpenSVM API Client wrapper
+ *
+ * Note on Solana RPC Limits:
+ * - getSignaturesForAddress and similar methods have a maximum limit of 1000 per request
+ * - This is enforced by Solana RPC endpoints to prevent excessive load
+ * - For larger datasets, use pagination with the 'before' parameter
  */
 class OpenSVMClient {
   private client: AxiosInstance;
@@ -197,14 +202,16 @@ class OpenSVMServer {
         },
         {
           name: 'get_account_transactions',
-          description: 'Get paginated transaction history for account. Returns: array of transaction objects with {signature, timestamp, slot, status, type}. Supports pagination via "before" cursor. Use case: Transaction history tracking, account activity analysis, audit trails, finding specific transactions.',
+          description: 'Get paginated transaction history for account with optional date filtering. Returns: array of transaction objects with {signature, timestamp, slot, status, type}. Supports pagination via "before" cursor and date range filtering via startDate/endDate (ISO strings or Unix timestamps in ms). Note: Solana RPC enforces a maximum limit of 1000 transactions per request. Use case: Transaction history tracking, account activity analysis, audit trails, finding transactions in date ranges.',
           inputSchema: {
             type: 'object',
             properties: {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' },
-              limit: { type: 'number', description: 'Number of transactions to return (max 100, default 20)', maximum: 100 },
+              limit: { type: 'number', description: 'Number of transactions to return (max 1000 due to Solana RPC limit, default 20)', maximum: 1000, minimum: 1 },
               before: { type: 'string', description: 'Pagination cursor (signature) to fetch older transactions' },
-              type: { type: 'string', description: 'Filter by transaction type: "token", "sol", "nft", etc.' }
+              type: { type: 'string', description: 'Filter by transaction type: "token", "sol", "nft", etc.' },
+              startDate: { type: ['string', 'number'], description: 'Filter start date: ISO string (e.g., "2025-10-21") or Unix timestamp in ms (e.g., 1729800000000)' },
+              endDate: { type: ['string', 'number'], description: 'Filter end date: ISO string (e.g., "2025-10-28") or Unix timestamp in ms (e.g., 1730160000000)' }
             },
             required: ['address']
           }
@@ -257,7 +264,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_block_stats',
-          description: 'Get blockchain statistics and performance metrics. Returns: {currentSlot, avgBlockTime, tps, recentBlockTimes: number[]}. Use case: Network performance monitoring, TPS calculation, blockchain health checks.',
+          description: 'Get blockchain statistics and performance metrics. Returns: {currentSlot, avgBlockTime, tps, recentBlockTimes: number[]}. Use case: Network performance monitoring, TPS calculation, blockchain health checks. Note: This endpoint is currently unavailable due to API issues.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -667,10 +674,23 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, 'Invalid Solana address format');
         }
+        // Validate and cap limit to Solana RPC maximum
+        let limit = args.limit;
+        if (limit !== undefined) {
+          if (typeof limit !== 'number' || limit < 1) {
+            throw new McpError(ErrorCode.InvalidParams, 'Limit must be a positive number');
+          }
+          if (limit > 1000) {
+            console.warn(`Limit ${limit} exceeds Solana RPC maximum of 1000, capping to 1000`);
+            limit = 1000;
+          }
+        }
         const accountTxs = await this.client.get(`/account-transactions/${args.address}`, {
-          limit: args.limit,
+          limit,
           before: args.before,
-          type: args.type
+          type: args.type,
+          startDate: args.startDate,
+          endDate: args.endDate
         });
         return {
           content: [{
@@ -728,6 +748,8 @@ class OpenSVMServer {
         };
 
       case 'get_block_stats':
+        // Note: This endpoint currently returns an error from the API
+        // Keeping the tool for future use when the API is fixed
         const blockStats = await this.client.get('/blocks/stats');
         return {
           content: [{
@@ -826,7 +848,7 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, 'Mints array is required');
         }
         const tokenMetadata = await this.client.get('/token-metadata', {
-          mints: args.mints.join(',')
+          mint: args.mints.join(',')
         });
         return {
           content: [{
@@ -984,11 +1006,32 @@ class OpenSVMServer {
 
       // Utility Tools
       case 'solana_rpc_call':
+        // Validate and cap limits for specific RPC methods that have Solana-imposed restrictions
+        let params = args.params || [];
+
+        // Handle methods with limit restrictions
+        const limitRestrictedMethods = [
+          'getSignaturesForAddress',
+          'getConfirmedSignaturesForAddress2', // Deprecated but still used
+          'getSignatures'
+        ];
+
+        if (limitRestrictedMethods.includes(args.method) && params.length > 1) {
+          // These methods typically have the config object as the second parameter
+          const config = params[1];
+          if (config && typeof config === 'object' && 'limit' in config) {
+            if (config.limit > 1000) {
+              console.warn(`RPC method ${args.method}: limit ${config.limit} exceeds Solana maximum of 1000, capping to 1000`);
+              params = [params[0], { ...config, limit: 1000 }];
+            }
+          }
+        }
+
         const rpcResult = await this.client.post('/proxy/rpc', {
           jsonrpc: '2.0',
           id: Date.now(),
           method: args.method,
-          params: args.params || []
+          params
         });
         return {
           content: [{
