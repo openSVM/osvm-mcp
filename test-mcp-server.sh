@@ -12,8 +12,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Test configuration
-TEST_ADDRESS="vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
+# Test configuration - Using active accounts with real data
+TEST_ADDRESS="2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9"  # Solana Foundation (active)
+TEST_ADDRESS_ALT="JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"  # Jupiter (very active)
 TEST_TX_SIG=""  # Will be fetched dynamically
 TEST_TOKEN_MINT="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  # USDC
 MCP_SERVER_PATH="$HOME/.osvm/mcp/osvm-mcp/build/index.js"
@@ -312,17 +313,18 @@ test_account_tools() {
     validate_json "$response" "get_account_transactions works with limit=100"
 
     # Test get_account_transactions array response
-    echo -e "\n${YELLOW}Testing get_account_transactions returns array...${NC}"
+    echo -e "\n${YELLOW}Testing get_account_transactions returns transactions array...${NC}"
     response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":5}")
     content=$(echo "$response" | jq -r '.result.content[0].text')
-    if echo "$content" | jq -e 'type == "array"' > /dev/null 2>&1; then
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$content" | jq -e '.transactions | type == "array"' > /dev/null 2>&1; then
+        tx_count=$(echo "$content" | jq '.transactions | length')
         TESTS_PASSED=$((TESTS_PASSED + 1))
-        echo -e "${GREEN}✓ get_account_transactions returns array${NC}"
+        echo -e "${GREEN}✓ get_account_transactions has transactions array with $tx_count items${NC}"
     else
         TESTS_FAILED=$((TESTS_FAILED + 1))
-        echo -e "${RED}✗ get_account_transactions should return array${NC}"
+        echo -e "${RED}✗ get_account_transactions should have transactions array${NC}"
     fi
-    TESTS_TOTAL=$((TESTS_TOTAL + 1))
 
     # Test check_account_type with different account types
     echo -e "\n${YELLOW}Testing check_account_type with system program...${NC}"

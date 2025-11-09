@@ -12,12 +12,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# Configuration
+# Configuration - Using active accounts with real data
 MCP_SERVER_PATH="$HOME/.osvm/mcp/osvm-mcp/build/index.js"
-TEST_ADDRESS="vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
+TEST_ADDRESS="2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9"  # Solana Foundation (active with transactions)
+TEST_ADDRESS_ALT="JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"  # Jupiter (very active)
 TEST_TOKEN_MINT="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  # USDC
 SYSTEM_PROGRAM="11111111111111111111111111111111"
 TOKEN_PROGRAM="TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+RAYDIUM_PROGRAM="675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"  # Raydium AMM
 
 # Counters
 TOTAL=0
