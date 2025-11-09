@@ -200,10 +200,10 @@ test_account_tools() {
     validate_json "$response" "get_account_portfolio returns valid JSON"
 
     content=$(echo "$response" | jq -r '.result.content[0].text')
-    validate_field "$content" '.data.native.balance' "get_account_portfolio has native balance"
-    validate_field "$content" '.data.native.price' "get_account_portfolio has SOL price" "true"
-    validate_field "$content" '.data.tokens' "get_account_portfolio has tokens array"
-    validate_field "$content" '.data.totalValue' "get_account_portfolio has totalValue" "true"
+    validate_field "$content" '.native.balance' "get_account_portfolio has native balance"
+    validate_field "$content" '.native.price' "get_account_portfolio has SOL price" "true"
+    validate_field "$content" '.tokens' "get_account_portfolio has tokens array"
+    validate_field "$content" '.totalValue' "get_account_portfolio has totalValue" "true"
 
     # Test get_solana_balance
     echo -e "\n${YELLOW}Testing get_solana_balance...${NC}"
@@ -303,9 +303,9 @@ test_analytics_tools() {
     validate_json "$response" "get_defi_overview returns valid JSON"
 
     local content=$(echo "$response" | jq -r '.result.content[0].text')
-    validate_field "$content" '.data.totalTvl' "get_defi_overview has totalTvl"
-    validate_field "$content" '.data.totalVolume24h' "get_defi_overview has totalVolume24h"
-    validate_field "$content" '.data.topProtocols' "get_defi_overview has topProtocols"
+    validate_field "$content" '.totalTvl' "get_defi_overview has totalTvl"
+    validate_field "$content" '.totalVolume24h' "get_defi_overview has totalVolume24h"
+    validate_field "$content" '.topProtocols' "get_defi_overview has topProtocols"
 
     # Test get_defi_health
     echo -e "\n${YELLOW}Testing get_defi_health...${NC}"
@@ -333,7 +333,7 @@ test_token_tools() {
     validate_json "$response" "get_token_info returns valid JSON"
 
     local content=$(echo "$response" | jq -r '.result.content[0].text')
-    validate_field "$content" '.metadata.symbol' "get_token_info has symbol"
+    validate_field "$content" '.symbol' "get_token_info has symbol"
     validate_field "$content" '.decimals' "get_token_info has decimals"
 
     # Test get_token_metadata - Skip due to API 400 error
@@ -438,8 +438,8 @@ test_user_usage_tools() {
     validate_json "$response" "get_api_metrics returns valid JSON"
 
     local content=$(echo "$response" | jq -r '.result.content[0].text')
-    validate_field "$content" '.data.performance' "get_api_metrics has performance data"
-    validate_field "$content" '.data.cache' "get_api_metrics has cache data"
+    validate_field "$content" '.performance' "get_api_metrics has performance data"
+    validate_field "$content" '.cache' "get_api_metrics has cache data"
 }
 
 # Test monetization tools (may require JWT)
