@@ -2284,6 +2284,7 @@ class OpenSVMServer {
         };
 
       case 'get_solana_balance':
+        autoCorrectParam(args, 'address', ['wallet', 'account', 'pubkey', 'publicKey'], 'get_solana_balance');
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }

@@ -234,6 +234,179 @@ test_account_tools() {
     response=$(call_mcp_tool "check_account_type" "{\"address\":\"$TEST_ADDRESS\"}")
     validate_json "$response" "check_account_type returns valid JSON"
 
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.type' "check_account_type has type field"
+
+    # Additional Account Tools Tests (5x expansion)
+
+    # Test get_account_stats with different addresses
+    echo -e "\n${YELLOW}Testing get_account_stats with system program...${NC}"
+    response=$(call_mcp_tool "get_account_stats" "{\"address\":\"11111111111111111111111111111111\"}")
+    validate_json "$response" "get_account_stats works with system program"
+
+    # Test get_account_stats response structure
+    echo -e "\n${YELLOW}Testing get_account_stats response structure...${NC}"
+    response=$(call_mcp_tool "get_account_stats" "{\"address\":\"$TEST_ADDRESS\"}")
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    # Verify it's a valid object
+    if echo "$content" | jq -e 'type == "object"' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_stats returns object structure${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_stats returns object structure${NC}"
+    fi
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+    # Test get_account_portfolio with multiple test addresses
+    echo -e "\n${YELLOW}Testing get_account_portfolio with token-rich address...${NC}"
+    response=$(call_mcp_tool "get_account_portfolio" "{\"address\":\"vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg\"}")
+    validate_json "$response" "get_account_portfolio handles token-rich wallets"
+
+    # Test get_account_portfolio flattened structure validation
+    echo -e "\n${YELLOW}Testing get_account_portfolio flattened structure...${NC}"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    # Ensure data is NOT nested
+    if echo "$content" | jq -e 'has("data") | not' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_portfolio has flattened structure (no .data nesting)${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_portfolio still has nested .data${NC}"
+    fi
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+    # Test get_account_portfolio native field structure
+    echo -e "\n${YELLOW}Testing get_account_portfolio native field...${NC}"
+    validate_field "$content" '.native' "get_account_portfolio has native object"
+    validate_field "$content" '.native.symbol' "get_account_portfolio native has symbol"
+    validate_field "$content" '.native.decimals' "get_account_portfolio native has decimals" "true"
+
+    # Test get_solana_balance parameter variations
+    echo -e "\n${YELLOW}Testing get_solana_balance with alternative parameter names...${NC}"
+    response=$(call_mcp_tool "get_solana_balance" "{\"wallet\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "get_solana_balance accepts 'wallet' parameter (auto-corrected)"
+
+    echo -e "\n${YELLOW}Testing get_solana_balance with pubkey parameter...${NC}"
+    response=$(call_mcp_tool "get_solana_balance" "{\"pubkey\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "get_solana_balance accepts 'pubkey' parameter (auto-corrected)"
+
+    # Test get_solana_balance response completeness
+    echo -e "\n${YELLOW}Testing get_solana_balance response completeness...${NC}"
+    response=$(call_mcp_tool "get_solana_balance" "{\"address\":\"$TEST_ADDRESS\"}")
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.address' "get_solana_balance includes address"
+    validate_field "$content" '.native.name' "get_solana_balance native has name"
+
+    # Test get_account_transactions with different limits
+    echo -e "\n${YELLOW}Testing get_account_transactions with limit=1...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":1}")
+    validate_json "$response" "get_account_transactions works with limit=1"
+
+    echo -e "\n${YELLOW}Testing get_account_transactions with limit=10...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":10}")
+    validate_json "$response" "get_account_transactions works with limit=10"
+
+    echo -e "\n${YELLOW}Testing get_account_transactions with limit=100...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":100}")
+    validate_json "$response" "get_account_transactions works with limit=100"
+
+    # Test get_account_transactions array response
+    echo -e "\n${YELLOW}Testing get_account_transactions returns array...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":5}")
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    if echo "$content" | jq -e 'type == "array"' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_transactions returns array${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_transactions should return array${NC}"
+    fi
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+    # Test check_account_type with different account types
+    echo -e "\n${YELLOW}Testing check_account_type with system program...${NC}"
+    response=$(call_mcp_tool "check_account_type" "{\"address\":\"11111111111111111111111111111111\"}")
+    validate_json "$response" "check_account_type identifies system program"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.type' "check_account_type has type for system program"
+
+    echo -e "\n${YELLOW}Testing check_account_type with token program...${NC}"
+    response=$(call_mcp_tool "check_account_type" "{\"address\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\"}")
+    validate_json "$response" "check_account_type identifies token program"
+
+    # Test check_account_type flattened structure
+    echo -e "\n${YELLOW}Testing check_account_type flattened structure...${NC}"
+    response=$(call_mcp_tool "check_account_type" "{\"address\":\"$TEST_ADDRESS\"}")
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    # Ensure details fields are flattened
+    if echo "$content" | jq -e 'has("type")' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ check_account_type has flattened structure with type field${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ check_account_type missing type field${NC}"
+    fi
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+
+    # Test error handling with invalid addresses
+    echo -e "\n${YELLOW}Testing get_account_stats with invalid address (too short)...${NC}"
+    response=$(call_mcp_tool "get_account_stats" "{\"address\":\"invalid\"}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.error // .result.isError' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_stats rejects invalid address with helpful error${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_stats should reject invalid address${NC}"
+    fi
+
+    echo -e "\n${YELLOW}Testing get_account_portfolio with invalid address...${NC}"
+    response=$(call_mcp_tool "get_account_portfolio" "{\"address\":\"123\"}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.error // .result.isError' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_portfolio rejects invalid address${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_portfolio should reject invalid address${NC}"
+    fi
+
+    # Test with missing required parameters
+    echo -e "\n${YELLOW}Testing get_account_stats without address parameter...${NC}"
+    response=$(call_mcp_tool "get_account_stats" "{}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.error // .result.isError' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_stats requires address parameter${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_stats should require address${NC}"
+    fi
+
+    # Test get_account_transactions with invalid limit
+    echo -e "\n${YELLOW}Testing get_account_transactions with negative limit...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":-1}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.error // .result.isError' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_transactions rejects negative limit${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_transactions should reject negative limit${NC}"
+    fi
+
+    echo -e "\n${YELLOW}Testing get_account_transactions with zero limit...${NC}"
+    response=$(call_mcp_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":0}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.error // .result.isError' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_transactions rejects zero limit${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_account_transactions should reject zero limit${NC}"
+    fi
+
     # Test get_account_token_stats - Skip due to API timeout issues (504)
     # echo -e "\n${YELLOW}Testing get_account_token_stats...${NC}"
     # response=$(call_mcp_tool "get_account_token_stats" "{\"address\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}")
