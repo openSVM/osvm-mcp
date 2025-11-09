@@ -203,6 +203,29 @@ class OpenSVMServer {
               signature: { type: 'string', description: 'Transaction signature (base58, 87-88 chars)' }
             },
             required: ['signature']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              signature: { type: 'string', description: 'Transaction signature' },
+              timestamp: { type: 'number', description: 'Transaction timestamp in milliseconds' },
+              slot: { type: 'number', description: 'Slot number when transaction was processed' },
+              success: { type: 'boolean', description: 'Whether transaction succeeded' },
+              type: { type: 'string', enum: ['sol', 'token'], description: 'Transaction type' },
+              details: {
+                type: 'object',
+                properties: {
+                  instructions: { type: 'array', description: 'Transaction instructions' },
+                  accounts: { type: 'array', description: 'Accounts involved in transaction' },
+                  preBalances: { type: 'array', items: { type: 'number' }, description: 'Account balances before transaction' },
+                  postBalances: { type: 'array', items: { type: 'number' }, description: 'Account balances after transaction' },
+                  tokenChanges: { type: 'array', description: 'Token balance changes' },
+                  solChanges: { type: 'array', description: 'SOL balance changes' },
+                  logs: { type: 'array', items: { type: 'string' }, description: 'Transaction logs' }
+                }
+              }
+            },
+            required: ['signature', 'timestamp', 'slot', 'success']
           }
         },
         {
@@ -428,6 +451,27 @@ class OpenSVMServer {
               address: { type: 'string', description: 'SPL token mint address (base58, 32-44 chars)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              decimals: { type: 'number', description: 'Number of decimal places for the token' },
+              holders: { type: 'number', description: 'Total number of token holders' },
+              isInitialized: { type: 'boolean', description: 'Whether the token mint is initialized' },
+              supply: { type: 'number', description: 'Total supply (raw amount including decimals)' },
+              volume24h: { type: 'number', description: '24-hour trading volume' },
+              metadata: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', description: 'Token name' },
+                  symbol: { type: 'string', description: 'Token symbol/ticker' },
+                  description: { type: 'string', description: 'Token description' },
+                  uri: { type: 'string', description: 'Metadata URI' }
+                },
+                required: ['name', 'symbol']
+              }
+            },
+            required: ['decimals', 'supply', 'isInitialized']
           }
         },
         {
@@ -443,6 +487,27 @@ class OpenSVMServer {
               }
             },
             required: ['mints']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                mint: { type: 'string', description: 'Token mint address' },
+                decimals: { type: 'number', description: 'Number of decimal places' },
+                supply: { type: 'number', description: 'Total supply (raw amount)' },
+                metadata: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Token name' },
+                    symbol: { type: 'string', description: 'Token symbol' },
+                    description: { type: 'string', description: 'Token description' },
+                    uri: { type: 'string', description: 'Metadata URI' }
+                  }
+                }
+              },
+              required: ['mint']
+            }
           }
         },
         {
