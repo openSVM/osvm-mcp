@@ -191,6 +191,33 @@ class OpenSVMServer {
     });
   }
 
+  /**
+   * Flatten RPC response structure for AI accessibility
+   * Converts {result: {context: {...}, value: {...}}} to {context: {...}, ...value}
+   */
+  private flattenRpcResponse(rpcResult: any): any {
+    if (!rpcResult || typeof rpcResult !== 'object') {
+      return rpcResult;
+    }
+
+    // If result has context/value structure, flatten it
+    if (rpcResult.result && typeof rpcResult.result === 'object') {
+      const { context, value } = rpcResult.result;
+
+      if (context !== undefined || value !== undefined) {
+        return {
+          ...rpcResult,
+          result: undefined,
+          context: context,
+          // Spread value to top level if it's an object, otherwise use it directly
+          ...(value && typeof value === 'object' ? value : { value })
+        };
+      }
+    }
+
+    return rpcResult;
+  }
+
   private getToolDefinitions() {
     return [
       // Transaction Tools
@@ -2126,10 +2153,26 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.signature));
         }
         const txData = await this.client.get(`/transaction/${args.signature}`);
+
+        // Flatten nested details object
+        const flattenedTx = {
+          ...txData,
+          // Move details fields to top level
+          instructions: txData.details?.instructions,
+          accounts: txData.details?.accounts,
+          preBalances: txData.details?.preBalances,
+          postBalances: txData.details?.postBalances,
+          tokenChanges: txData.details?.tokenChanges,
+          solChanges: txData.details?.solChanges,
+          logs: txData.details?.logs,
+          // Remove nested details object
+          details: undefined
+        };
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(txData, null, 2)
+            text: JSON.stringify(flattenedTx, null, 2)
           }]
         };
 
@@ -2149,10 +2192,26 @@ class OpenSVMServer {
           signatures: args.signatures,
           includeDetails: args.includeDetails ?? true
         });
+
+        // Flatten nested details in each transaction
+        const flattenedBatch = Array.isArray(batchData) ? batchData.map((item: any) => ({
+          ...item,
+          // Move details fields to top level
+          instructions: item.details?.instructions,
+          accounts: item.details?.accounts,
+          preBalances: item.details?.preBalances,
+          postBalances: item.details?.postBalances,
+          tokenChanges: item.details?.tokenChanges,
+          solChanges: item.details?.solChanges,
+          logs: item.details?.logs,
+          // Remove nested details object
+          details: undefined
+        })) : batchData;
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(batchData, null, 2)
+            text: JSON.stringify(flattenedBatch, null, 2)
           }]
         };
 
@@ -2203,10 +2262,24 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
         const portfolio = await this.client.get(`/account-portfolio/${args.address}`);
+
+        // Flatten nested data structure
+        const flattenedPortfolio = {
+          ...portfolio,
+          // Move data.native fields to top level
+          native: portfolio.data?.native,
+          tokens: portfolio.data?.tokens,
+          totalValue: portfolio.data?.totalValue,
+          totalTokens: portfolio.data?.totalTokens,
+          summary: portfolio.data?.summary,
+          // Remove nested data object
+          data: undefined
+        };
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(portfolio, null, 2)
+            text: JSON.stringify(flattenedPortfolio, null, 2)
           }]
         };
 
@@ -2280,10 +2353,20 @@ class OpenSVMServer {
         const accountType = await this.client.get('/check-account-type', {
           address: args.address
         });
+
+        // Flatten nested details object
+        const flattenedAccountType = {
+          ...accountType,
+          // Spread details to top level (if exists)
+          ...(accountType.details && typeof accountType.details === 'object' ? accountType.details : {}),
+          // Remove nested details object
+          details: undefined
+        };
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountType, null, 2)
+            text: JSON.stringify(flattenedAccountType, null, 2)
           }]
         };
 
@@ -2434,10 +2517,24 @@ class OpenSVMServer {
         const tokenMetadata = await this.client.get('/token-metadata', {
           mint: args.mints.join(',')
         });
+
+        // Flatten nested metadata objects in array
+        const flattenedMetadata = Array.isArray(tokenMetadata) ? tokenMetadata.map((item: any) => ({
+          ...item,
+          // Move metadata fields to top level
+          name: item.metadata?.name,
+          symbol: item.metadata?.symbol,
+          description: item.metadata?.description,
+          uri: item.metadata?.uri,
+          image: item.metadata?.image,
+          // Remove nested metadata object
+          metadata: undefined
+        })) : tokenMetadata;
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenMetadata, null, 2)
+            text: JSON.stringify(flattenedMetadata, null, 2)
           }]
         };
 
@@ -2472,7 +2569,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(verifyResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(verifyResult), null, 2)
           }]
         };
 
@@ -2609,7 +2706,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountInfoResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(accountInfoResult), null, 2)
           }]
         };
 
@@ -2630,7 +2727,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(balanceResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(balanceResult), null, 2)
           }]
         };
 
@@ -2665,7 +2762,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(multiAcctResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(multiAcctResult), null, 2)
           }]
         };
 
@@ -2690,7 +2787,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(progAcctResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(progAcctResult), null, 2)
           }]
         };
 
@@ -2723,7 +2820,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(sigResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(sigResult), null, 2)
           }]
         };
 
@@ -2741,7 +2838,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(slotResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(slotResult), null, 2)
           }]
         };
 
@@ -2759,7 +2856,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(blockHeightResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(blockHeightResult), null, 2)
           }]
         };
 
@@ -2777,7 +2874,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(blockhashResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(blockhashResult), null, 2)
           }]
         };
 
@@ -2798,7 +2895,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenBalResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(tokenBalResult), null, 2)
           }]
         };
 
@@ -2836,7 +2933,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenAcctResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(tokenAcctResult), null, 2)
           }]
         };
 
@@ -2857,7 +2954,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenSupplyResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(tokenSupplyResult), null, 2)
           }]
         };
 
@@ -2875,7 +2972,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(epochResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(epochResult), null, 2)
           }]
         };
 
@@ -2889,7 +2986,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(healthResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(healthResult), null, 2)
           }]
         };
 
@@ -2903,7 +3000,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(versionResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(versionResult), null, 2)
           }]
         };
 
@@ -2929,7 +3026,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(simResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(simResult), null, 2)
           }]
         };
 
@@ -2955,7 +3052,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(sendResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(sendResult), null, 2)
           }]
         };
 
@@ -2979,7 +3076,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(getTxResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(getTxResult), null, 2)
           }]
         };
 
@@ -3002,7 +3099,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(getBlockResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(getBlockResult), null, 2)
           }]
         };
 
@@ -3019,7 +3116,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(rentResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(rentResult), null, 2)
           }]
         };
 
@@ -3039,7 +3136,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(airdropResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(airdropResult), null, 2)
           }]
         };
 
@@ -3061,7 +3158,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(sigStatusResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(sigStatusResult), null, 2)
           }]
         };
 
@@ -3081,7 +3178,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(bhValidResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(bhValidResult), null, 2)
           }]
         };
 
@@ -3100,7 +3197,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(prioFeeResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(prioFeeResult), null, 2)
           }]
         };
 
@@ -3120,7 +3217,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(feeForMsgResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(feeForMsgResult), null, 2)
           }]
         };
 
@@ -3137,7 +3234,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(txCountResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(txCountResult), null, 2)
           }]
         };
 
@@ -3154,7 +3251,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(blockTimeResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(blockTimeResult), null, 2)
           }]
         };
 
@@ -3171,7 +3268,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(slotLeaderResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(slotLeaderResult), null, 2)
           }]
         };
 
@@ -3188,7 +3285,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(slotLeadersResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(slotLeadersResult), null, 2)
           }]
         };
 
@@ -3208,7 +3305,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(voteAcctsResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(voteAcctsResult), null, 2)
           }]
         };
 
@@ -3228,7 +3325,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(supplyResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(supplyResult), null, 2)
           }]
         };
 
@@ -3242,7 +3339,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(clusterNodesResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(clusterNodesResult), null, 2)
           }]
         };
 
@@ -3256,7 +3353,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(epochScheduleResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(epochScheduleResult), null, 2)
           }]
         };
 
@@ -3270,7 +3367,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(inflationRateResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(inflationRateResult), null, 2)
           }]
         };
 
@@ -3293,7 +3390,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(inflRewardResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(inflRewardResult), null, 2)
           }]
         };
 
@@ -3331,7 +3428,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenByDelegateResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(tokenByDelegateResult), null, 2)
           }]
         };
 
@@ -3351,7 +3448,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenLargestResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(tokenLargestResult), null, 2)
           }]
         };
 
@@ -3371,7 +3468,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(largestAcctsResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(largestAcctsResult), null, 2)
           }]
         };
 
@@ -3394,7 +3491,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(leaderSchedResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(leaderSchedResult), null, 2)
           }]
         };
 
@@ -3408,7 +3505,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(minLedgerResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(minLedgerResult), null, 2)
           }]
         };
 
@@ -3422,7 +3519,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(firstBlockResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(firstBlockResult), null, 2)
           }]
         };
 
@@ -3458,7 +3555,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(rpcResult, null, 2)
+            text: JSON.stringify(this.flattenRpcResponse(rpcResult), null, 2)
           }]
         };
 
