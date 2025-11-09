@@ -1134,6 +1134,14 @@ class OpenSVMServer {
         };
 
       case 'batch_transactions':
+        // Auto-correct single signature to array
+        if (args.signatures === undefined && args.signature !== undefined) {
+          args.signatures = Array.isArray(args.signature) ? args.signature : [args.signature];
+          console.warn(`[batch_transactions] Auto-corrected parameter: "signature" → "signatures" (as array)`);
+        } else if (typeof args.signatures === 'string') {
+          args.signatures = [args.signatures];
+          console.warn(`[batch_transactions] Auto-corrected: single signature string → array`);
+        }
         if (!Array.isArray(args.signatures) || args.signatures.length === 0) {
           throw new McpError(ErrorCode.InvalidParams, 'Signatures array is required. Example: ["5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"]');
         }
@@ -1399,6 +1407,14 @@ class OpenSVMServer {
         };
 
       case 'get_token_metadata':
+        // Auto-correct single mint to array
+        if (args.mints === undefined && args.mint !== undefined) {
+          args.mints = Array.isArray(args.mint) ? args.mint : [args.mint];
+          console.warn(`[get_token_metadata] Auto-corrected parameter: "mint" → "mints" (as array)`);
+        } else if (typeof args.mints === 'string') {
+          args.mints = [args.mints];
+          console.warn(`[get_token_metadata] Auto-corrected: single mint string → array`);
+        }
         if (!Array.isArray(args.mints) || args.mints.length === 0) {
           throw new McpError(ErrorCode.InvalidParams, getArrayValidationError(args.mints, 'Mints', '"So11111111111111111111111111111111111111112", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"'));
         }
@@ -1606,6 +1622,14 @@ class OpenSVMServer {
         };
 
       case 'rpc_getMultipleAccounts':
+        // Auto-correct single address to array
+        if (args.addresses === undefined && args.address !== undefined) {
+          args.addresses = Array.isArray(args.address) ? args.address : [args.address];
+          console.warn(`[rpc_getMultipleAccounts] Auto-corrected parameter: "address" → "addresses" (as array)`);
+        } else if (typeof args.addresses === 'string') {
+          args.addresses = [args.addresses];
+          console.warn(`[rpc_getMultipleAccounts] Auto-corrected: single address string → array`);
+        }
         if (!Array.isArray(args.addresses) || args.addresses.length === 0) {
           throw new McpError(ErrorCode.InvalidParams, getArrayValidationError(args.addresses, 'Addresses', '"So11111111111111111111111111111111111111112"'));
         }
