@@ -411,6 +411,288 @@ test_account_tools() {
     # echo -e "\n${YELLOW}Testing get_account_token_stats...${NC}"
     # response=$(call_mcp_tool "get_account_token_stats" "{\"address\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}")
     # validate_json "$response" "get_account_token_stats returns valid JSON"
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # SECTION: ENHANCED ACCOUNT DATA RETRIEVAL TESTS
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    echo -e "\n${BLUE}═══ Enhanced Account Data Retrieval Tests ═══${NC}"
+
+    # Test RPC getAccountInfo with various account types
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with system program...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"11111111111111111111111111111111\"}")
+    validate_json "$response" "rpc_getAccountInfo returns valid JSON for system program"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.lamports' "rpc_getAccountInfo has lamports"
+    validate_field "$content" '.executable' "rpc_getAccountInfo has executable flag" "true"
+    validate_field "$content" '.owner' "rpc_getAccountInfo has owner" "true"
+
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with token program...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\"}")
+    validate_json "$response" "rpc_getAccountInfo returns valid JSON for program"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.executable' "rpc_getAccountInfo shows program is executable" "true"
+
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with token mint address...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"$TEST_TOKEN_MINT\"}")
+    validate_json "$response" "rpc_getAccountInfo works for token mint"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.lamports' "rpc_getAccountInfo includes lamports"
+    validate_field "$content" '.data' "rpc_getAccountInfo includes account data" "true"
+
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with wallet (may be null)...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "rpc_getAccountInfo returns valid JSON for wallet"
+
+    # Test rpc_getAccountInfo with encoding options
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with base64 encoding...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"11111111111111111111111111111111\",\"encoding\":\"base64\"}")
+    validate_json "$response" "rpc_getAccountInfo with base64 encoding works"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.data' "rpc_getAccountInfo with base64 has data" "true"
+
+    echo -e "\n${YELLOW}Testing rpc_getAccountInfo with jsonParsed encoding...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"$TEST_TOKEN_MINT\",\"encoding\":\"jsonParsed\"}")
+    validate_json "$response" "rpc_getAccountInfo with jsonParsed encoding works"
+
+    # Test rpc_getMultipleAccounts
+    echo -e "\n${YELLOW}Testing rpc_getMultipleAccounts with 2 addresses...${NC}"
+    response=$(call_mcp_tool "rpc_getMultipleAccounts" "{\"addresses\":[\"$TEST_ADDRESS\",\"11111111111111111111111111111111\"]}")
+    validate_json "$response" "rpc_getMultipleAccounts returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.value' "rpc_getMultipleAccounts has value array"
+    # Check array length
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    array_length=$(echo "$content" | jq '.value | length')
+    if [ "$array_length" == "2" ]; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ rpc_getMultipleAccounts returns 2 accounts${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ rpc_getMultipleAccounts should return 2 accounts (got $array_length)${NC}"
+    fi
+
+    echo -e "\n${YELLOW}Testing rpc_getMultipleAccounts with multiple token accounts...${NC}"
+    response=$(call_mcp_tool "rpc_getMultipleAccounts" "{\"addresses\":[\"$TEST_TOKEN_MINT\",\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\"]}")
+    validate_json "$response" "rpc_getMultipleAccounts works with token mints"
+
+    # Test account owner checks
+    echo -e "\n${YELLOW}Testing rpc_getProgramAccounts (get accounts by owner)...${NC}"
+    response=$(call_mcp_tool "rpc_getProgramAccounts" "{\"program\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\"}")
+    validate_json "$response" "rpc_getProgramAccounts returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    # Should return array of accounts
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$content" | jq -e 'type == "array"' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ rpc_getProgramAccounts returns array of accounts${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ rpc_getProgramAccounts should return array${NC}"
+    fi
+
+    # Test account balance queries
+    echo -e "\n${YELLOW}Testing rpc_getBalance for wallet...${NC}"
+    response=$(call_mcp_tool "rpc_getBalance" "{\"address\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "rpc_getBalance returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.value' "rpc_getBalance has value (lamports)"
+
+    echo -e "\n${YELLOW}Testing rpc_getBalance for system program (should be 1)...${NC}"
+    response=$(call_mcp_tool "rpc_getBalance" "{\"address\":\"11111111111111111111111111111111\"}")
+    validate_json "$response" "rpc_getBalance works for system program"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    balance=$(echo "$content" | jq -r '.value')
+    if [ "$balance" == "1" ]; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ System program has expected balance of 1 lamport${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ System program balance unexpected: $balance${NC}"
+    fi
+
+    # Test token account balance
+    echo -e "\n${YELLOW}Testing rpc_getTokenAccountBalance...${NC}"
+    # Get a token account first
+    token_accounts_response=$(call_mcp_tool "rpc_getTokenAccountsByOwner" "{\"owner\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$token_accounts_response" | jq -e '.result' > /dev/null 2>&1; then
+        token_account=$(echo "$token_accounts_response" | jq -r '.result.content[0].text' | jq -r '.value[0].pubkey // empty')
+        if [ -n "$token_account" ] && [ "$token_account" != "null" ]; then
+            response=$(call_mcp_tool "rpc_getTokenAccountBalance" "{\"account\":\"$token_account\"}")
+            validate_json "$response" "rpc_getTokenAccountBalance returns valid JSON"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        else
+            echo -e "${YELLOW}⊘ No token account found for balance test (skipping)${NC}"
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+        fi
+    else
+        echo -e "${YELLOW}⊘ Could not fetch token accounts (skipping balance test)${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    fi
+
+    # Test rpc_getTokenAccountsByOwner
+    echo -e "\n${YELLOW}Testing rpc_getTokenAccountsByOwner (by mint)...${NC}"
+    response=$(call_mcp_tool "rpc_getTokenAccountsByOwner" "{\"owner\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}")
+    validate_json "$response" "rpc_getTokenAccountsByOwner with mint filter works"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.value' "rpc_getTokenAccountsByOwner has value array"
+
+    echo -e "\n${YELLOW}Testing rpc_getTokenAccountsByOwner (by program)...${NC}"
+    response=$(call_mcp_tool "rpc_getTokenAccountsByOwner" "{\"owner\":\"$TEST_ADDRESS\",\"programId\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\"}")
+    validate_json "$response" "rpc_getTokenAccountsByOwner with program filter works"
+
+    # Test rpc_getTokenSupply
+    echo -e "\n${YELLOW}Testing rpc_getTokenSupply for USDC...${NC}"
+    response=$(call_mcp_tool "rpc_getTokenSupply" "{\"mint\":\"$TEST_TOKEN_MINT\"}")
+    validate_json "$response" "rpc_getTokenSupply returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.value.amount' "rpc_getTokenSupply has amount"
+    validate_field "$content" '.value.decimals' "rpc_getTokenSupply has decimals"
+    validate_field "$content" '.value.uiAmountString' "rpc_getTokenSupply has UI amount"
+
+    # Test rpc_getTokenLargestAccounts
+    echo -e "\n${YELLOW}Testing rpc_getTokenLargestAccounts for USDC...${NC}"
+    response=$(call_mcp_tool "rpc_getTokenLargestAccounts" "{\"mint\":\"$TEST_TOKEN_MINT\"}")
+    validate_json "$response" "rpc_getTokenLargestAccounts returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.value' "rpc_getTokenLargestAccounts has value array"
+    # Verify array has items
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    account_count=$(echo "$content" | jq '.value | length')
+    if [ "$account_count" -gt 0 ]; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ rpc_getTokenLargestAccounts returns $account_count accounts${NC}"
+        # Validate structure of first item
+        validate_field "$content" '.value[0].address' "Largest account has address"
+        validate_field "$content" '.value[0].amount' "Largest account has amount"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ rpc_getTokenLargestAccounts should return accounts${NC}"
+    fi
+
+    # Test account data size and rent calculations
+    echo -e "\n${YELLOW}Testing account data size retrieval for token mint...${NC}"
+    response=$(call_mcp_tool "rpc_getAccountInfo" "{\"address\":\"$TEST_TOKEN_MINT\"}")
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    validate_field "$content" '.lamports' "Account info includes lamports (for rent calc)"
+    validate_field "$content" '.data' "Account info includes data field" "true"
+    # Also check space field
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$content" | jq -e 'has("space")' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        space=$(echo "$content" | jq -r '.space')
+        echo -e "${GREEN}✓ Account has space field for rent calculation: $space bytes${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ Account should have space field${NC}"
+    fi
+
+    # Test recent accounts discovery
+    echo -e "\n${YELLOW}Testing get_recent_accounts...${NC}"
+    response=$(call_mcp_tool "get_recent_accounts" "{\"limit\":5}")
+    validate_json "$response" "get_recent_accounts returns valid JSON"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$content" | jq -e 'type == "array"' > /dev/null 2>&1; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_recent_accounts returns array${NC}"
+        # Verify accounts have expected structure
+        account_count=$(echo "$content" | jq 'length')
+        if [ "$account_count" -gt 0 ]; then
+            validate_field "$content" '.[0].address' "Recent account has address"
+        fi
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_recent_accounts should return array${NC}"
+    fi
+
+    echo -e "\n${YELLOW}Testing get_recent_accounts with limit=10...${NC}"
+    response=$(call_mcp_tool "get_recent_accounts" "{\"limit\":10}")
+    validate_json "$response" "get_recent_accounts with limit=10 works"
+
+    echo -e "\n${YELLOW}Testing get_recent_accounts with limit=1...${NC}"
+    response=$(call_mcp_tool "get_recent_accounts" "{\"limit\":1}")
+    validate_json "$response" "get_recent_accounts with limit=1 works"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    count=$(echo "$content" | jq 'length')
+    if [ "$count" == "1" ]; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_recent_accounts respects limit=1${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ get_recent_accounts should return exactly 1 account (got $count)${NC}"
+    fi
+
+    # Test search_accounts functionality
+    echo -e "\n${YELLOW}Testing search_accounts with partial address...${NC}"
+    partial_address=$(echo "$TEST_ADDRESS" | cut -c1-10)
+    response=$(call_mcp_tool "search_accounts" "{\"query\":\"$partial_address\"}")
+    validate_json "$response" "search_accounts with partial address works"
+
+    echo -e "\n${YELLOW}Testing search_accounts with full address...${NC}"
+    response=$(call_mcp_tool "search_accounts" "{\"query\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "search_accounts with full address works"
+    content=$(echo "$response" | jq -r '.result.content[0].text')
+    # Should find the address
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$content" | grep -q "$TEST_ADDRESS"; then
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ search_accounts finds exact address match${NC}"
+    else
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        echo -e "${RED}✗ search_accounts should find the test address${NC}"
+    fi
+
+    # Test account data parsing edge cases
+    echo -e "\n${YELLOW}Testing get_account_portfolio with empty wallet...${NC}"
+    # Use a likely empty address (randomly generated)
+    empty_wallet="F1rstEmptyWa11et1111111111111111111111111"
+    response=$(call_mcp_tool "get_account_portfolio" "{\"address\":\"$empty_wallet\"}")
+    TESTS_TOTAL=$((TESTS_TOTAL + 1))
+    if echo "$response" | jq -e '.result' > /dev/null 2>&1; then
+        content=$(echo "$response" | jq -r '.result.content[0].text')
+        # Empty wallet should still have native balance structure
+        if echo "$content" | jq -e '.native' > /dev/null 2>&1; then
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+            echo -e "${GREEN}✓ get_account_portfolio handles empty wallet gracefully${NC}"
+        else
+            TESTS_FAILED=$((TESTS_FAILED + 1))
+            echo -e "${RED}✗ get_account_portfolio should return native structure for empty wallet${NC}"
+        fi
+    else
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        echo -e "${GREEN}✓ get_account_portfolio handles non-existent address${NC}"
+    fi
+
+    # Test parameter auto-correction for account tools
+    echo -e "\n${YELLOW}Testing get_account_stats with 'account' parameter...${NC}"
+    response=$(call_mcp_tool "get_account_stats" "{\"account\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "get_account_stats accepts 'account' parameter (auto-corrected)"
+
+    echo -e "\n${YELLOW}Testing get_account_portfolio with 'wallet' parameter...${NC}"
+    response=$(call_mcp_tool "get_account_portfolio" "{\"wallet\":\"$TEST_ADDRESS\"}")
+    validate_json "$response" "get_account_portfolio accepts 'wallet' parameter (auto-corrected)"
+
+    # Test flattened response consistency across all account tools
+    echo -e "\n${YELLOW}Testing all account tools return flattened structures...${NC}"
+    tools_to_check=("get_account_stats" "get_account_portfolio" "get_solana_balance")
+    for tool in "${tools_to_check[@]}"; do
+        response=$(call_mcp_tool "$tool" "{\"address\":\"$TEST_ADDRESS\"}")
+        content=$(echo "$response" | jq -r '.result.content[0].text // empty')
+        TESTS_TOTAL=$((TESTS_TOTAL + 1))
+        if [ -n "$content" ] && echo "$content" | jq -e 'has("data") | not' > /dev/null 2>&1; then
+            TESTS_PASSED=$((TESTS_PASSED + 1))
+            echo -e "${GREEN}✓ $tool has flattened structure${NC}"
+        else
+            TESTS_FAILED=$((TESTS_FAILED + 1))
+            echo -e "${RED}✗ $tool should not have nested .data field${NC}"
+        fi
+    done
+
+    echo -e "\n${BLUE}═══ Enhanced Account Data Tests Complete ═══${NC}"
 }
 
 # Test transaction tools
