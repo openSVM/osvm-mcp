@@ -243,6 +243,20 @@ class OpenSVMServer {
               includeDetails: { type: 'boolean', description: 'Include full transaction details (default true)' }
             },
             required: ['signatures']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                timestamp: { type: 'number', description: 'Transaction timestamp in milliseconds' },
+                slot: { type: 'number', description: 'Slot number' },
+                success: { type: 'boolean', description: 'Whether transaction succeeded' },
+                type: { type: 'string', description: 'Transaction type' },
+                details: { type: 'object', description: 'Detailed transaction data (if includeDetails=true)' }
+              }
+            }
           }
         },
         {
@@ -255,6 +269,18 @@ class OpenSVMServer {
               model: { type: 'string', description: 'AI model to use: "gpt-4", "claude", etc. (optional)' }
             },
             required: ['signature']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              signature: { type: 'string', description: 'Transaction signature' },
+              programs: { type: 'array', items: { type: 'string' }, description: 'Detected program IDs' },
+              tokenTransfers: { type: 'array', description: 'Token transfer events' },
+              nftActions: { type: 'array', description: 'NFT-related actions' },
+              defiInteractions: { type: 'array', description: 'DeFi protocol interactions' },
+              securityInsights: { type: 'object', description: 'Security analysis results' },
+              summary: { type: 'string', description: 'AI-generated summary' }
+            }
           }
         },
         {
@@ -267,6 +293,15 @@ class OpenSVMServer {
               language: { type: 'string', description: 'Output language: "en", "es", "zh", etc. (default "en")' }
             },
             required: ['signature']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              signature: { type: 'string', description: 'Transaction signature' },
+              explanation: { type: 'string', description: 'Human-readable explanation of the transaction' },
+              language: { type: 'string', description: 'Language of explanation' }
+            },
+            required: ['signature', 'explanation']
           }
         },
         // Account Tools
@@ -279,6 +314,15 @@ class OpenSVMServer {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalTransactions: { type: 'string', description: 'Total number of transactions (may be approximated, e.g., "3000+")' },
+              tokenTransfers: { type: 'number', description: 'Number of token transfer transactions' },
+              lastUpdated: { type: 'number', description: 'Timestamp when stats were last updated (Unix timestamp in milliseconds)' }
+            },
+            required: ['totalTransactions']
           }
         },
         {
@@ -290,6 +334,52 @@ class OpenSVMServer {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Account address' },
+              timestamp: { type: 'number', description: 'Timestamp of data retrieval' },
+              data: {
+                type: 'object',
+                properties: {
+                  native: {
+                    type: 'object',
+                    properties: {
+                      balance: { type: 'number', description: 'SOL balance' },
+                      symbol: { type: 'string', description: 'Token symbol (SOL)' },
+                      price: { type: 'number', description: 'Current SOL price in USD' },
+                      value: { type: 'number', description: 'Total value in USD' },
+                      change24h: { type: 'number', description: '24-hour price change percentage' }
+                    }
+                  },
+                  tokens: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        balance: { type: 'number', description: 'Token balance' },
+                        symbol: { type: 'string', description: 'Token symbol' },
+                        name: { type: 'string', description: 'Token name' },
+                        price: { type: 'number', description: 'Token price in USD' },
+                        value: { type: 'number', description: 'Token value in USD' }
+                      }
+                    }
+                  },
+                  totalValue: { type: 'number', description: 'Total portfolio value in USD' },
+                  totalTokens: { type: 'number', description: 'Number of different tokens held' },
+                  summary: {
+                    type: 'object',
+                    properties: {
+                      hasData: { type: 'boolean', description: 'Whether portfolio data is available' },
+                      dataSource: { type: 'string', description: 'Source of price data' },
+                      pricesAvailable: { type: 'boolean', description: 'Whether price data is available' }
+                    }
+                  }
+                }
+              }
+            },
+            required: ['address', 'timestamp']
           }
         },
         {
@@ -301,6 +391,49 @@ class OpenSVMServer {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Account address' },
+              timestamp: { type: 'number', description: 'Timestamp of data retrieval' },
+              native: {
+                type: 'object',
+                properties: {
+                  balance: { type: 'number', description: 'SOL balance' },
+                  symbol: { type: 'string', description: 'Token symbol (SOL)' },
+                  name: { type: 'string', description: 'Token name (Solana)' },
+                  decimals: { type: 'number', description: 'Token decimals (9 for SOL)' },
+                  price: { type: 'number', description: 'Current SOL price in USD' },
+                  value: { type: 'number', description: 'Total value in USD' },
+                  change24h: { type: 'number', description: '24-hour price change percentage' }
+                }
+              },
+              tokens: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    balance: { type: 'number', description: 'Token balance' },
+                    symbol: { type: 'string', description: 'Token symbol' },
+                    name: { type: 'string', description: 'Token name' },
+                    price: { type: 'number', description: 'Token price in USD' },
+                    value: { type: 'number', description: 'Token value in USD' }
+                  }
+                }
+              },
+              totalValue: { type: 'number', description: 'Total portfolio value in USD' },
+              totalTokens: { type: 'number', description: 'Number of different tokens held' },
+              summary: {
+                type: 'object',
+                properties: {
+                  hasData: { type: 'boolean', description: 'Whether portfolio data is available' },
+                  dataSource: { type: 'string', description: 'Source of price data' },
+                  pricesAvailable: { type: 'boolean', description: 'Whether price data is available' }
+                }
+              }
+            },
+            required: ['address', 'timestamp']
           }
         },
         {
@@ -317,6 +450,20 @@ class OpenSVMServer {
               endDate: { type: ['string', 'number'], description: 'Filter end date: ISO string (e.g., "2025-10-28") or Unix timestamp in ms (e.g., 1730160000000)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                timestamp: { type: 'number', description: 'Transaction timestamp in milliseconds' },
+                slot: { type: 'number', description: 'Slot number' },
+                status: { type: 'string', description: 'Transaction status (success/failed)' },
+                type: { type: 'string', description: 'Transaction type (sol/token/nft/etc.)' }
+              },
+              required: ['signature']
+            }
           }
         },
         {
@@ -327,6 +474,17 @@ class OpenSVMServer {
             properties: {
               address: { type: 'string', description: 'Account address holding the token' },
               mint: { type: 'string', description: 'Token mint address to query stats for' }
+            },
+            required: ['address', 'mint']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Account address' },
+              mint: { type: 'string', description: 'Token mint address' },
+              balance: { type: 'number', description: 'Token balance' },
+              transferCount: { type: 'number', description: 'Number of transfers' },
+              lastActivity: { type: 'number', description: 'Timestamp of last activity' }
             },
             required: ['address', 'mint']
           }
@@ -340,6 +498,14 @@ class OpenSVMServer {
               address: { type: 'string', description: 'Solana account address to identify (base58, 32-44 chars)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['wallet', 'program', 'token', 'nft', 'system'], description: 'Account type' },
+              details: { type: 'object', description: 'Additional account details based on type' }
+            },
+            required: ['type']
           }
         },
         // Block Tools
@@ -352,6 +518,17 @@ class OpenSVMServer {
               slot: { type: 'number', description: 'Block slot number (positive integer)' }
             },
             required: ['slot']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              slot: { type: 'number', description: 'Block slot number' },
+              blockhash: { type: 'string', description: 'Block hash' },
+              transactions: { type: 'array', description: 'Array of transactions in the block' },
+              blockTime: { type: 'number', description: 'Block timestamp (Unix timestamp)' },
+              blockHeight: { type: 'number', description: 'Block height' }
+            },
+            required: ['slot', 'blockhash']
           }
         },
         {
@@ -363,6 +540,19 @@ class OpenSVMServer {
               limit: { type: 'number', description: 'Number of blocks to return (default 20, max 100)' },
               before: { type: 'number', description: 'Slot number to fetch blocks before (for pagination)' }
             }
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                slot: { type: 'number', description: 'Block slot number' },
+                blockhash: { type: 'string', description: 'Block hash' },
+                transactionCount: { type: 'number', description: 'Number of transactions in block' },
+                blockTime: { type: 'number', description: 'Block timestamp (Unix timestamp)' }
+              },
+              required: ['slot']
+            }
           }
         },
         {
@@ -371,6 +561,15 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              currentSlot: { type: 'number', description: 'Current blockchain slot' },
+              avgBlockTime: { type: 'number', description: 'Average block time in milliseconds' },
+              tps: { type: 'number', description: 'Transactions per second' },
+              recentBlockTimes: { type: 'array', items: { type: 'number' }, description: 'Recent block times array' }
+            }
           }
         },
         // Search Tools
@@ -389,6 +588,15 @@ class OpenSVMServer {
               max: { type: 'number', description: 'Maximum amount filter (optional)' }
             },
             required: ['query']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              results: { type: 'array', description: 'Search results array' },
+              type: { type: 'string', description: 'Type of results returned' },
+              count: { type: 'number', description: 'Total number of results' }
+            },
+            required: ['results', 'count']
           }
         },
         {
@@ -403,6 +611,17 @@ class OpenSVMServer {
               maxBalance: { type: 'number', description: 'Maximum SOL balance filter (in SOL)' }
             },
             required: ['query']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                address: { type: 'string', description: 'Account address' },
+                balance: { type: 'number', description: 'SOL balance' },
+                tokens: { type: 'array', description: 'Token holdings' }
+              }
+            }
           }
         },
         // Analytics Tools
@@ -412,6 +631,27 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalTvl: { type: 'number', description: 'Total value locked in DeFi protocols' },
+              totalVolume24h: { type: 'number', description: '24-hour trading volume across all DEXes' },
+              activeDexes: { type: 'number', description: 'Number of active DEX protocols' },
+              totalTransactions: { type: 'number', description: 'Total number of DeFi transactions' },
+              topProtocols: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Protocol name' },
+                    tvl: { type: 'number', description: 'Total value locked' },
+                    volume24h: { type: 'number', description: '24-hour volume' },
+                    category: { type: 'string', description: 'Protocol category' }
+                  }
+                }
+              }
+            }
           }
         },
         {
@@ -423,6 +663,17 @@ class OpenSVMServer {
               dex: { type: 'string', description: 'DEX name: "raydium", "orca", "jupiter", "meteora", etc.' },
               timeframe: { type: 'string', enum: ['1h', '24h', '7d'], description: 'Time period for analytics (default "24h")' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              dex: { type: 'string', description: 'DEX name' },
+              volume: { type: 'number', description: 'Trading volume' },
+              trades: { type: 'number', description: 'Number of trades' },
+              uniqueTraders: { type: 'number', description: 'Number of unique traders' },
+              topPairs: { type: 'array', description: 'Top trading pairs' },
+              priceImpact: { type: 'object', description: 'Price impact statistics' }
+            }
           }
         },
         {
@@ -431,6 +682,15 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              riskScore: { type: 'number', description: 'Overall risk score (0-100)' },
+              liquidityDepth: { type: 'number', description: 'Aggregate liquidity depth' },
+              marketStability: { type: 'number', description: 'Market stability indicator' },
+              alerts: { type: 'array', items: { type: 'string' }, description: 'Health alerts and warnings' }
+            }
           }
         },
         {
@@ -439,12 +699,22 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalValidators: { type: 'number', description: 'Total number of validators' },
+              activeStake: { type: 'number', description: 'Total active stake in lamports' },
+              averageCommission: { type: 'number', description: 'Average validator commission percentage' },
+              decentralization: { type: 'object', description: 'Decentralization metrics' },
+              topValidators: { type: 'array', description: 'Top validators by stake' }
+            }
           }
         },
         // Token & NFT Tools
         {
           name: 'get_token_info',
-          description: 'Get SPL token details and metadata. Returns NESTED object with structure: {decimals: number, holders: number, isInitialized: boolean, supply: number (raw amount with decimals), volume24h: number, metadata: {name: string, symbol: string, description: string, uri: string}}. IMPORTANT: Token name/symbol are INSIDE metadata object! Access via: metadata.name, metadata.symbol, metadata.description, metadata.uri. Top-level fields: decimals, holders, supply, volume24h, isInitialized. Use case: Token research, verify token legitimacy, check supply/holders.',
+          description: 'Get SPL token details and metadata. Returns FLATTENED object with all fields at top level: {name: string, symbol: string, description: string, uri: string, decimals: number, holders: number, isInitialized: boolean, supply: number (raw amount with decimals), volume24h: number, price: number, priceChange24h: number, liquidity: number}. Metadata fields (name, symbol, description, uri) are at TOP LEVEL for easy access. Use case: Token research, verify token legitimacy, check supply/holders.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -455,21 +725,22 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
+              name: { type: 'string', description: 'Token name (flattened from metadata)' },
+              symbol: { type: 'string', description: 'Token symbol/ticker (flattened from metadata)' },
+              description: { type: 'string', description: 'Token description (flattened from metadata)' },
+              uri: { type: 'string', description: 'Metadata URI (flattened from metadata)' },
               decimals: { type: 'number', description: 'Number of decimal places for the token' },
               holders: { type: 'number', description: 'Total number of token holders' },
+              totalHolders: { type: 'number', description: 'Total holders count' },
               isInitialized: { type: 'boolean', description: 'Whether the token mint is initialized' },
               supply: { type: 'number', description: 'Total supply (raw amount including decimals)' },
               volume24h: { type: 'number', description: '24-hour trading volume' },
-              metadata: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string', description: 'Token name' },
-                  symbol: { type: 'string', description: 'Token symbol/ticker' },
-                  description: { type: 'string', description: 'Token description' },
-                  uri: { type: 'string', description: 'Metadata URI' }
-                },
-                required: ['name', 'symbol']
-              }
+              price: { type: 'number', description: 'Current token price in USD' },
+              priceChange24h: { type: 'number', description: '24-hour price change percentage' },
+              liquidity: { type: 'number', description: 'Total liquidity in USD' },
+              top10Balance: { type: 'number', description: 'Balance held by top 10 holders' },
+              top50Balance: { type: 'number', description: 'Balance held by top 50 holders' },
+              top100Balance: { type: 'number', description: 'Balance held by top 100 holders' }
             },
             required: ['decimals', 'supply', 'isInitialized']
           }
@@ -519,6 +790,21 @@ class OpenSVMServer {
               limit: { type: 'number', description: 'Number of collections to return (default 20, max 100)' },
               sort: { type: 'string', enum: ['volume', 'floor', 'items'], description: 'Sort by volume24h, floor price, or item count (default "volume")' }
             }
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Collection name' },
+                symbol: { type: 'string', description: 'Collection symbol' },
+                floorPrice: { type: 'number', description: 'Floor price in SOL' },
+                volume24h: { type: 'number', description: '24-hour trading volume' },
+                totalItems: { type: 'number', description: 'Total number of NFTs in collection' },
+                listed: { type: 'number', description: 'Number of NFTs currently listed' },
+                verified: { type: 'boolean', description: 'Whether collection is verified' }
+              }
+            }
           }
         },
         {
@@ -527,6 +813,19 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Collection name' },
+                symbol: { type: 'string', description: 'Collection symbol' },
+                volume24h: { type: 'number', description: '24-hour trading volume' },
+                volumeChange: { type: 'number', description: 'Volume change percentage' },
+                floorPrice: { type: 'number', description: 'Floor price in SOL' }
+              }
+            }
           }
         },
         // User Management Tools
@@ -541,6 +840,14 @@ class OpenSVMServer {
               publicKey: { type: 'string', description: 'Public key of the signing wallet (base58)' }
             },
             required: ['message', 'signature', 'publicKey']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              valid: { type: 'boolean', description: 'Whether the signature is valid' },
+              address: { type: 'string', description: 'Wallet address that signed the message' }
+            },
+            required: ['valid']
           }
         },
         {
@@ -553,6 +860,18 @@ class OpenSVMServer {
               limit: { type: 'number', description: 'Number of transactions to return (default 20, max 100)' }
             },
             required: ['walletAddress']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                timestamp: { type: 'number', description: 'Transaction timestamp' },
+                type: { type: 'string', description: 'Transaction type' },
+                status: { type: 'string', description: 'Transaction status' }
+              }
+            }
           }
         },
         // Monetization Tools
@@ -562,6 +881,16 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              balance: { type: 'number', description: 'Total SVMAI token balance' },
+              reserved: { type: 'number', description: 'Reserved SVMAI tokens' },
+              available: { type: 'number', description: 'Available SVMAI tokens for use' },
+              sufficient: { type: 'boolean', description: 'Whether balance is sufficient for operations' }
+            },
+            required: ['balance', 'available']
           }
         },
         {
@@ -570,6 +899,15 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalRequests: { type: 'number', description: 'Total number of API requests made' },
+              totalTokensSpent: { type: 'number', description: 'Total SVMAI tokens spent' },
+              avgCostPerRequest: { type: 'number', description: 'Average cost per API request' },
+              recentTransactions: { type: 'array', description: 'Recent billing transactions' }
+            }
           }
         },
         {
@@ -588,6 +926,18 @@ class OpenSVMServer {
               }
             },
             required: ['action']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', description: 'API key ID' },
+                name: { type: 'string', description: 'API key name' },
+                permissions: { type: 'array', items: { type: 'string' }, description: 'Key permissions' },
+                created: { type: 'string', description: 'Creation date' }
+              }
+            }
           }
         },
         // Infrastructure Tools
@@ -597,6 +947,16 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              uptime: { type: 'number', description: 'API uptime percentage' },
+              avgResponseTime: { type: 'number', description: 'Average response time in milliseconds' },
+              requestsPerSecond: { type: 'number', description: 'Current requests per second' },
+              errorRate: { type: 'number', description: 'Error rate percentage' },
+              cacheHitRate: { type: 'number', description: 'Cache hit rate percentage' }
+            }
           }
         },
         {
@@ -611,6 +971,14 @@ class OpenSVMServer {
               userAgent: { type: 'string', description: 'Browser/client user agent string (optional)' }
             },
             required: ['message']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              reported: { type: 'boolean', description: 'Whether error was successfully reported' },
+              errorId: { type: 'string', description: 'Unique error report ID' }
+            },
+            required: ['reported']
           }
         },
         // Program Registry Tools
@@ -623,6 +991,21 @@ class OpenSVMServer {
               category: { type: 'string', description: 'Filter by category: "defi", "nft", "gaming", "infrastructure", etc.' },
               verified: { type: 'boolean', description: 'Show only verified/audited programs (default false)' }
             }
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                programId: { type: 'string', description: 'Program address' },
+                name: { type: 'string', description: 'Program name' },
+                category: { type: 'string', description: 'Program category' },
+                verified: { type: 'boolean', description: 'Whether program is verified' },
+                description: { type: 'string', description: 'Program description' },
+                website: { type: 'string', description: 'Program website URL' },
+                audit: { type: 'string', description: 'Audit information' }
+              }
+            }
           }
         },
         {
@@ -632,6 +1015,22 @@ class OpenSVMServer {
             type: 'object',
             properties: {
               programId: { type: 'string', description: 'Solana program address (base58, 32-44 chars)' }
+            },
+            required: ['programId']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              programId: { type: 'string', description: 'Program address' },
+              name: { type: 'string', description: 'Program name' },
+              category: { type: 'string', description: 'Program category' },
+              verified: { type: 'boolean', description: 'Whether program is verified' },
+              description: { type: 'string', description: 'Program description' },
+              website: { type: 'string', description: 'Program website URL' },
+              github: { type: 'string', description: 'GitHub repository URL' },
+              audit: { type: 'string', description: 'Audit information' },
+              deployDate: { type: 'string', description: 'Program deployment date' },
+              upgradeAuthority: { type: 'string', description: 'Upgrade authority address' }
             },
             required: ['programId']
           }
@@ -648,6 +1047,30 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: {
+                type: 'object',
+                properties: {
+                  lamports: { type: 'number', description: 'Account balance in lamports' },
+                  owner: { type: 'string', description: 'Program that owns the account' },
+                  executable: { type: 'boolean', description: 'Whether account is executable' },
+                  rentEpoch: { type: 'number', description: 'Rent epoch' },
+                  data: { description: 'Account data (format depends on encoding)' }
+                },
+                required: ['lamports', 'owner']
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -660,6 +1083,20 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: { type: 'number', description: 'Balance in lamports (1 SOL = 1,000,000,000 lamports)' }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -673,6 +1110,32 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['addresses']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    lamports: { type: 'number', description: 'Account balance in lamports' },
+                    owner: { type: 'string', description: 'Program that owns the account' },
+                    executable: { type: 'boolean', description: 'Whether account is executable' },
+                    rentEpoch: { type: 'number', description: 'Rent epoch' },
+                    data: { description: 'Account data' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -687,6 +1150,23 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['programId']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                pubkey: { type: 'string', description: 'Account public key' },
+                account: {
+                  type: 'object',
+                  properties: {
+                    lamports: { type: 'number', description: 'Account balance' },
+                    owner: { type: 'string', description: 'Program owner' },
+                    data: { description: 'Account data' }
+                  }
+                }
+              }
+            }
           }
         },
         {
@@ -702,6 +1182,19 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['address']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                signature: { type: 'string', description: 'Transaction signature' },
+                slot: { type: 'number', description: 'Slot number' },
+                blockTime: { type: 'number', description: 'Block timestamp' },
+                err: { description: 'Error if transaction failed, null if successful' }
+              },
+              required: ['signature']
+            }
           }
         },
         {
@@ -712,6 +1205,10 @@ class OpenSVMServer {
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Current slot number'
           }
         },
         {
@@ -722,6 +1219,10 @@ class OpenSVMServer {
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Current block height'
           }
         },
         {
@@ -732,6 +1233,14 @@ class OpenSVMServer {
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              blockhash: { type: 'string', description: 'Latest blockhash' },
+              lastValidBlockHeight: { type: 'number', description: 'Last block height where this blockhash is valid' }
+            },
+            required: ['blockhash', 'lastValidBlockHeight']
           }
         },
         {
@@ -744,6 +1253,29 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['tokenAccount']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: {
+                type: 'object',
+                properties: {
+                  amount: { type: 'string', description: 'Raw token amount as string (with decimals)' },
+                  decimals: { type: 'number', description: 'Number of decimals' },
+                  uiAmount: { type: 'number', description: 'Human-readable token amount' },
+                  uiAmountString: { type: 'string', description: 'Human-readable token amount as string' }
+                },
+                required: ['amount', 'decimals']
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -759,6 +1291,29 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['owner']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    pubkey: { type: 'string', description: 'Token account public key' },
+                    account: { type: 'object', description: 'Account data with parsed token information' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -771,6 +1326,28 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['mint']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' },
+                  apiVersion: { type: 'string', description: 'API version' }
+                }
+              },
+              value: {
+                type: 'object',
+                properties: {
+                  amount: { type: 'string', description: 'Raw token supply as string' },
+                  decimals: { type: 'number', description: 'Number of decimals' },
+                  uiAmount: { type: 'number', description: 'Human-readable supply' },
+                  uiAmountString: { type: 'string', description: 'Human-readable supply as string' }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -781,6 +1358,16 @@ class OpenSVMServer {
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              epoch: { type: 'number', description: 'Current epoch number' },
+              slotIndex: { type: 'number', description: 'Current slot relative to epoch start' },
+              slotsInEpoch: { type: 'number', description: 'Total slots in this epoch' },
+              absoluteSlot: { type: 'number', description: 'Current absolute slot number' },
+              blockHeight: { type: 'number', description: 'Current block height' }
+            }
           }
         },
         {
@@ -789,6 +1376,10 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'string',
+            description: 'Health status: "ok" if healthy'
           }
         },
         {
@@ -797,6 +1388,13 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              'solana-core': { type: 'string', description: 'Solana core version' },
+              'feature-set': { type: 'number', description: 'Feature set number' }
+            }
           }
         },
         {
@@ -812,6 +1410,14 @@ class OpenSVMServer {
               accounts: { type: 'object', description: 'Account overrides for simulation' }
             },
             required: ['transaction']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              err: { description: 'Error object if simulation failed, null if successful' },
+              logs: { type: 'array', items: { type: 'string' }, description: 'Transaction log messages' },
+              accounts: { type: 'array', description: 'Account state after simulation' }
+            }
           }
         },
         {
@@ -827,6 +1433,10 @@ class OpenSVMServer {
               maxRetries: { type: 'number', description: 'Max retry attempts (default: 5)' }
             },
             required: ['transaction']
+          },
+          outputSchema: {
+            type: 'string',
+            description: 'Transaction signature (base58 encoded)'
           }
         },
         {
@@ -841,6 +1451,11 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['signature']
+          }
+        ,
+          outputSchema: {
+            type: 'object',
+            description: 'Transaction details including slot, transaction data, metadata, and blockTime'
           }
         },
         {
@@ -858,6 +1473,11 @@ class OpenSVMServer {
             },
             required: ['slot']
           }
+        ,
+          outputSchema: {
+            type: 'object',
+            description: 'Block details including blockhash, transactions, rewards, and timestamps'
+          }
         },
         {
           name: 'rpc_getMinimumBalanceForRentExemption',
@@ -869,6 +1489,11 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['dataLength']
+          }
+        ,
+          outputSchema: {
+            type: 'number',
+            description: 'Minimum lamports required for rent exemption'
           }
         },
         {
@@ -883,6 +1508,11 @@ class OpenSVMServer {
             },
             required: ['address', 'lamports']
           }
+        ,
+          outputSchema: {
+            type: 'string',
+            description: 'Airdrop transaction signature'
+          }
         },
         {
           name: 'rpc_getSignatureStatuses',
@@ -894,6 +1524,30 @@ class OpenSVMServer {
               searchTransactionHistory: { type: 'boolean', description: 'Search full transaction history (default: false)' }
             },
             required: ['signatures']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    slot: { type: 'number', description: 'Slot where transaction was processed' },
+                    confirmations: { type: 'number', description: 'Number of confirmations' },
+                    err: { description: 'Error if transaction failed, null if successful' },
+                    confirmationStatus: { type: 'string', description: 'Confirmation status' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -906,6 +1560,19 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['blockhash']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: { type: 'boolean', description: 'Whether blockhash is valid' }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -928,6 +1595,16 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['message']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                slot: { type: 'number', description: 'Slot number' },
+                prioritizationFee: { type: 'number', description: 'Prioritization fee in micro-lamports' }
+              }
+            }
           }
         },
         {
@@ -949,6 +1626,11 @@ class OpenSVMServer {
               slot: { type: 'number', description: 'Block slot number' }
             },
             required: ['slot']
+          }
+        ,
+          outputSchema: {
+            type: 'number',
+            description: 'Total number of transactions processed'
           }
         },
         {
@@ -972,6 +1654,11 @@ class OpenSVMServer {
             },
             required: ['startSlot', 'limit']
           }
+        ,
+          outputSchema: {
+            type: 'string',
+            description: 'Validator identity pubkey for current slot leader'
+          }
         },
         {
           name: 'rpc_getVoteAccounts',
@@ -981,6 +1668,13 @@ class OpenSVMServer {
             properties: {
               votePubkey: { type: 'string', description: 'Filter by vote account pubkey (optional)' },
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
+            }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              current: { type: 'array', description: 'Current active vote accounts' },
+              delinquent: { type: 'array', description: 'Delinquent vote accounts' }
             }
           }
         },
@@ -993,6 +1687,27 @@ class OpenSVMServer {
               excludeNonCirculatingAccountsList: { type: 'boolean', description: 'Exclude non-circulating accounts list (default: false)' },
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'object',
+                properties: {
+                  total: { type: 'number', description: 'Total supply in lamports' },
+                  circulating: { type: 'number', description: 'Circulating supply in lamports' },
+                  nonCirculating: { type: 'number', description: 'Non-circulating supply in lamports' },
+                  nonCirculatingAccounts: { type: 'array', items: { type: 'string' }, description: 'Non-circulating account addresses' }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -1001,6 +1716,19 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                pubkey: { type: 'string', description: 'Node public key' },
+                gossip: { type: 'string', description: 'Gossip network address' },
+                tpu: { type: 'string', description: 'TPU network address' },
+                rpc: { type: 'string', description: 'RPC network address' },
+                version: { type: 'string', description: 'Software version' }
+              }
+            }
           }
         },
         {
@@ -1009,6 +1737,16 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              slotsPerEpoch: { type: 'number', description: 'Slots per epoch' },
+              leaderScheduleSlotOffset: { type: 'number', description: 'Leader schedule slot offset' },
+              warmup: { type: 'boolean', description: 'Whether epochs start short and grow' },
+              firstNormalEpoch: { type: 'number', description: 'First normal-length epoch' },
+              firstNormalSlot: { type: 'number', description: 'First normal-length slot' }
+            }
           }
         },
         {
@@ -1017,6 +1755,15 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              total: { type: 'number', description: 'Total inflation rate' },
+              validator: { type: 'number', description: 'Validator inflation rate' },
+              foundation: { type: 'number', description: 'Foundation inflation rate' },
+              epoch: { type: 'number', description: 'Epoch number' }
+            }
           }
         },
         {
@@ -1030,6 +1777,106 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['addresses']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                epoch: { type: 'number', description: 'Epoch for which reward was calculated' },
+                effectiveSlot: { type: 'number', description: 'Slot in which rewards were effective' },
+                amount: { type: 'number', description: 'Reward amount in lamports' },
+                postBalance: { type: 'number', description: 'Post-reward account balance in lamports' },
+                commission: { type: 'number', description: 'Vote account commission when the reward was credited' }
+              }
+            }
+          }
+        },
+        {
+          name: 'rpc_getEpochSchedule',
+          description: 'Get epoch schedule information. Returns: {slotsPerEpoch, leaderScheduleSlotOffset, warmup, firstNormalEpoch, firstNormalSlot}. Use case: Calculate epoch boundaries, timing predictions.',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              slotsPerEpoch: { type: 'number', description: 'Slots per epoch' },
+              leaderScheduleSlotOffset: { type: 'number', description: 'Leader schedule slot offset' },
+              warmup: { type: 'boolean', description: 'Whether epochs start short and grow' },
+              firstNormalEpoch: { type: 'number', description: 'First normal-length epoch' },
+              firstNormalSlot: { type: 'number', description: 'First normal-length slot' }
+            }
+          }
+        },
+        {
+          name: 'rpc_getClusterNodes',
+          description: 'Get cluster node information. Returns: array of {pubkey, gossip, tpu, rpc, version}. Use case: Network topology, node discovery, cluster health.',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                pubkey: { type: 'string', description: 'Node public key' },
+                gossip: { type: 'string', description: 'Gossip network address' },
+                tpu: { type: 'string', description: 'TPU network address' },
+                rpc: { type: 'string', description: 'RPC network address' },
+                version: { type: 'string', description: 'Software version' }
+              }
+            }
+          }
+        },
+        {
+          name: 'rpc_getSupply',
+          description: 'Get information about current supply. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Use case: Economic analysis, circulating supply tracking.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
+            }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'object',
+                properties: {
+                  total: { type: 'number', description: 'Total supply in lamports' },
+                  circulating: { type: 'number', description: 'Circulating supply in lamports' },
+                  nonCirculating: { type: 'number', description: 'Non-circulating supply in lamports' },
+                  nonCirculatingAccounts: { type: 'array', items: { type: 'string' }, description: 'Non-circulating account addresses' }
+                }
+              }
+            },
+            required: ['context', 'value']
+          }
+        },
+        {
+          name: 'rpc_getVoteAccounts',
+          description: 'Get vote account status. Returns: {current: array, delinquent: array}. Use case: Validator voting status, stake distribution.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
+            }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              current: { type: 'array', description: 'Current active vote accounts' },
+              delinquent: { type: 'array', description: 'Delinquent vote accounts' }
+            }
           }
         },
         {
@@ -1045,6 +1892,28 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['delegate']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    pubkey: { type: 'string', description: 'Token account public key' },
+                    account: { type: 'object', description: 'Account data with parsed token information' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -1057,6 +1926,31 @@ class OpenSVMServer {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             },
             required: ['mint']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    address: { type: 'string', description: 'Token account address' },
+                    amount: { type: 'string', description: 'Raw token amount as string' },
+                    decimals: { type: 'number', description: 'Number of decimals' },
+                    uiAmount: { type: 'number', description: 'Human-readable amount' },
+                    uiAmountString: { type: 'string', description: 'Human-readable amount as string' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -1068,6 +1962,28 @@ class OpenSVMServer {
               filter: { type: 'string', enum: ['circulating', 'nonCirculating'], description: 'Filter by account type (optional)' },
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              context: {
+                type: 'object',
+                properties: {
+                  slot: { type: 'number', description: 'Slot number' }
+                }
+              },
+              value: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    address: { type: 'string', description: 'Account address' },
+                    lamports: { type: 'number', description: 'SOL balance in lamports' }
+                  }
+                }
+              }
+            },
+            required: ['context', 'value']
           }
         },
         {
@@ -1080,6 +1996,10 @@ class OpenSVMServer {
               identity: { type: 'string', description: 'Filter by validator identity (optional)' },
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Object mapping validator pubkeys to arrays of slot numbers they will lead'
           }
         },
         {
@@ -1088,6 +2008,10 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Lowest slot that the node has information for in its ledger'
           }
         },
         {
@@ -1096,6 +2020,10 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Slot of the first available block in the ledger'
           }
         },
         {
@@ -1122,6 +2050,9 @@ class OpenSVMServer {
               }
             },
             required: ['method']
+          },
+          outputSchema: {
+            description: 'Standard Solana RPC response for the specified method (format varies by method)'
           }
         }
       ];
@@ -1137,6 +2068,10 @@ class OpenSVMServer {
           inputSchema: {
             type: 'object',
             properties: {}
+          },
+          outputSchema: {
+            type: 'array',
+            description: 'Array of all available tool definitions'
           }
         },
         ...this.getToolDefinitions()
@@ -1464,10 +2399,23 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
         const tokenInfo = await this.client.get(`/token/${args.address}`);
+
+        // Flatten metadata to top level for better AI accessibility
+        const flattenedTokenInfo = {
+          ...tokenInfo,
+          // Move metadata fields to top level
+          name: tokenInfo.metadata?.name,
+          symbol: tokenInfo.metadata?.symbol,
+          description: tokenInfo.metadata?.description,
+          uri: tokenInfo.metadata?.uri,
+          // Remove the nested metadata object
+          metadata: undefined
+        };
+
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenInfo, null, 2)
+            text: JSON.stringify(flattenedTokenInfo, null, 2)
           }]
         };
 
