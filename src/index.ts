@@ -15,6 +15,7 @@ import {
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
 import axios, { AxiosInstance } from 'axios';
+import bs58 from 'bs58';
 
 // Environment configuration
 const BASE_URL = process.env.OPENSVM_BASE_URL || 'https://osvm.ai/api';
@@ -141,6 +142,45 @@ const getMultiAddressValidationError = (address: any, mint: any): string => {
     return getAddressValidationError(mint, 'mint');
   }
   return 'Invalid address or mint format';
+};
+
+/**
+ * Convert base58 Solana address to base64 for RPC filter use
+ * Solana RPC getProgramAccounts requires base64 encoding for memcmp filters
+ */
+const base58ToBase64 = (base58Address: string): string => {
+  try {
+    const decoded = bs58.decode(base58Address);
+    return Buffer.from(decoded).toString('base64');
+  } catch (error) {
+    throw new Error(`Failed to convert base58 address to base64: ${error}`);
+  }
+};
+
+/**
+ * Process RPC filters to convert base58 addresses to base64
+ * This is required for getProgramAccounts memcmp filters
+ */
+const processRpcFilters = (filters: any[]): any[] => {
+  if (!Array.isArray(filters)) return filters;
+
+  return filters.map(filter => {
+    if (filter.memcmp && filter.memcmp.bytes) {
+      // Check if bytes looks like a base58 address (32-44 chars, base58 alphabet)
+      const bytes = filter.memcmp.bytes;
+      if (typeof bytes === 'string' && bytes.length >= 32 && bytes.length <= 44 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(bytes)) {
+        return {
+          ...filter,
+          memcmp: {
+            ...filter.memcmp,
+            bytes: base58ToBase64(bytes),
+            encoding: 'base64'
+          }
+        };
+      }
+    }
+    return filter;
+  });
 };
 
 /**
@@ -479,18 +519,32 @@ class OpenSVMServer {
             required: ['address']
           },
           outputSchema: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                signature: { type: 'string', description: 'Transaction signature' },
-                timestamp: { type: 'number', description: 'Transaction timestamp in milliseconds' },
-                slot: { type: 'number', description: 'Slot number' },
-                status: { type: 'string', description: 'Transaction status (success/failed)' },
-                type: { type: 'string', description: 'Transaction type (sol/token/nft/etc.)' }
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Account address queried' },
+              transactions: {
+                type: 'array',
+                description: 'Array of transaction objects',
+                items: {
+                  type: 'object',
+                  properties: {
+                    signature: { type: 'string', description: 'Transaction signature' },
+                    timestamp: { type: 'number', description: 'Transaction timestamp in milliseconds' },
+                    slot: { type: 'number', description: 'Slot number' },
+                    err: { type: ['object', 'null'], description: 'Error details if transaction failed' },
+                    success: { type: 'boolean', description: 'Whether transaction succeeded' },
+                    accounts: { type: 'array', description: 'Accounts involved in transaction' },
+                    transfers: { type: 'array', description: 'SOL transfers in the transaction' },
+                    memo: { type: ['string', 'null'], description: 'Transaction memo if present' }
+                  },
+                  required: ['signature', 'timestamp']
+                }
               },
-              required: ['signature']
-            }
+              includeInflow: { type: 'boolean', description: 'Whether inflow transactions are included' },
+              classified: { type: 'boolean', description: 'Whether transactions are classified by type' },
+              rpcCount: { type: 'number', description: 'Number of RPC calls made' }
+            },
+            required: ['address', 'transactions']
           }
         },
         {
@@ -2775,7 +2829,11 @@ class OpenSVMServer {
         if (args.encoding || args.filters || args.commitment) {
           const config: any = {};
           if (args.encoding) config.encoding = args.encoding;
-          if (args.filters) config.filters = args.filters;
+          // Process filters to convert base58 addresses to base64
+          if (args.filters) {
+            config.filters = processRpcFilters(args.filters);
+            console.warn(`[rpc_getProgramAccounts] Processed ${args.filters.length} filters for base58→base64 conversion`);
+          }
           if (args.commitment) config.commitment = args.commitment;
           progAcctParams.push(config);
         }
