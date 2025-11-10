@@ -1903,12 +1903,24 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getRecentPrioritizationFees',
-          description: 'Get recent prioritization fees for transactions. Request: {addresses?: array} Response: {Array of fee objects} Use case: Estimate priority fees, optimize transaction cost, ensure timely execution.',
+          description: 'Get recent prioritization fees for transactions. Returns array of {prioritizationFee: number (lamports), slot: number} objects from recent slots. Request: {addresses?: array} Response: [{prioritizationFee: number, slot: number}, ...] Use case: Estimate priority fees, optimize transaction cost, ensure timely execution.',
           inputSchema: {
             type: 'object',
             properties: {
               addresses: { type: 'array', items: { type: 'string' }, description: 'Account addresses to get fees for (optional, max 128)' }
             }
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                prioritizationFee: { type: 'number', description: 'Prioritization fee in lamports (micro-lamports)' },
+                slot: { type: 'number', description: 'Slot number this fee was observed in' }
+              },
+              required: ['prioritizationFee', 'slot']
+            },
+            description: 'Array of recent prioritization fees by slot (typically last 150 slots)'
           }
         },
         {
