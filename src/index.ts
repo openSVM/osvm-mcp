@@ -792,6 +792,251 @@ class OpenSVMServer {
             }
           }
         },
+        {
+          name: 'get_market_data',
+          description: 'Get comprehensive market data including OHLCV (candlestick), orderbook depth, and pool/liquidity information. Supports multiple timeframes (1m, 5m, 15m, 30m, 1H, 2H, 4H, 6H, 8H, 12H, 1D, 3D, 1W, 1M). Returns: For OHLCV: {tokenInfo: {symbol, name, price, liquidity, volume24h}, pools: [...], data: {items: [{o, h, l, c, v, unixTime}]}, indicators: {ma7, ma25, macd}}. For markets: {pools: [{dex, pair, poolAddress, price, liquidity, volume24h, txCount24h}]}. For orderbook: {bids: [[price, size]], asks: [[price, size]]}. Use case: Price charting, technical analysis, liquidity discovery, market depth analysis.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              mint: { type: 'string', description: 'Token mint address (required)' },
+              endpoint: { type: 'string', enum: ['ohlcv', 'markets', 'orderbook'], description: 'Data type to fetch: ohlcv (candlestick/chart), markets (pools/liquidity), orderbook (market depth)' },
+              type: { type: 'string', enum: ['1m', '5m', '15m', '30m', '1H', '2H', '4H', '6H', '8H', '12H', '1D', '3D', '1W', '1M'], description: 'Timeframe for OHLCV data (default: 1H)' },
+              poolAddress: { type: 'string', description: 'Specific pool address for pool-specific data (optional)' },
+              baseMint: { type: 'string', description: 'Filter markets by base token mint (optional)' },
+              offset: { type: 'string', description: 'Price offset in basis points for orderbook (default: 100)' }
+            },
+            required: ['mint', 'endpoint']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', description: 'Request success status' },
+              endpoint: { type: 'string', description: 'Endpoint type used' },
+              mint: { type: 'string', description: 'Token mint address' },
+              tokenInfo: {
+                type: 'object',
+                description: 'Token information (OHLCV only)',
+                properties: {
+                  symbol: { type: 'string', description: 'Token symbol' },
+                  name: { type: 'string', description: 'Token name' },
+                  price: { type: 'number', description: 'Current price' },
+                  liquidity: { type: 'number', description: 'Total liquidity' },
+                  volume24h: { type: 'number', description: '24h volume' }
+                }
+              },
+              mainPair: {
+                type: 'object',
+                description: 'Main trading pair (OHLCV only)',
+                properties: {
+                  pair: { type: 'string', description: 'Pair name' },
+                  dex: { type: 'string', description: 'DEX name' },
+                  poolAddress: { type: 'string', description: 'Pool address' }
+                }
+              },
+              pools: {
+                type: 'array',
+                description: 'Available pools/markets',
+                items: {
+                  type: 'object',
+                  properties: {
+                    dex: { type: 'string', description: 'DEX name (Phoenix, Raydium, Orca, etc.)' },
+                    pair: { type: 'string', description: 'Trading pair' },
+                    poolAddress: { type: 'string', description: 'Pool address' },
+                    price: { type: 'number', description: 'Current price in pool' },
+                    liquidity: { type: 'number', description: 'Pool liquidity' },
+                    volume24h: { type: 'number', description: '24h trading volume' },
+                    txCount24h: { type: 'number', description: '24h transaction count' },
+                    baseToken: { type: 'string', description: 'Base token symbol' },
+                    quoteToken: { type: 'string', description: 'Quote token symbol' }
+                  }
+                }
+              },
+              data: {
+                type: 'object',
+                description: 'OHLCV candlestick data',
+                properties: {
+                  items: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        o: { type: 'number', description: 'Open price' },
+                        h: { type: 'number', description: 'High price' },
+                        l: { type: 'number', description: 'Low price' },
+                        c: { type: 'number', description: 'Close price' },
+                        v: { type: 'number', description: 'Volume' },
+                        unixTime: { type: 'number', description: 'Unix timestamp' }
+                      }
+                    }
+                  }
+                }
+              },
+              indicators: {
+                type: 'object',
+                description: 'Technical indicators (OHLCV only)',
+                properties: {
+                  ma7: { type: 'array', description: '7-period moving average', items: { type: ['number', 'null'] } },
+                  ma25: { type: 'array', description: '25-period moving average', items: { type: ['number', 'null'] } },
+                  macd: {
+                    type: 'object',
+                    properties: {
+                      line: { type: 'array', description: 'MACD line' },
+                      signal: { type: 'array', description: 'Signal line' },
+                      histogram: { type: 'array', description: 'MACD histogram' }
+                    }
+                  }
+                }
+              },
+              bids: { type: 'array', description: 'Orderbook bids (orderbook only)', items: { type: 'array' } },
+              asks: { type: 'array', description: 'Orderbook asks (orderbook only)', items: { type: 'array' } }
+            },
+            required: ['success', 'endpoint', 'mint']
+          }
+        },
+        {
+          name: 'get_dex_profile',
+          description: 'Get comprehensive DEX profile and analytics including volume, TVL, fees, security info, and top pools. Returns: {name, description, website, twitter, programId, volume24h, volumeChange, tvl, tvlChange, marketShare, activeUsers, transactions, fees24h, totalFees, commission, status, security: {audited, auditors, bugBounty, multisig}, metrics: {uptime, avgSlippage, poolCount, tokenCount}, topPools, recentTrades}. Use case: DEX comparison, protocol research, trading venue selection, security verification.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', description: 'DEX identifier (raydium, orca, phoenix, meteora, jupiter, drift, mango, serum, lifinity, saber, mercurial, aldrin, crema, cropper, penguin, sencha, stepn, etc.)' }
+            },
+            required: ['name']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', description: 'Request success status' },
+              data: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', description: 'DEX name' },
+                  description: { type: 'string', description: 'DEX description' },
+                  logo: { type: 'string', description: 'Logo URL' },
+                  website: { type: 'string', description: 'Official website' },
+                  twitter: { type: 'string', description: 'Twitter handle' },
+                  github: { type: 'string', description: 'GitHub repository' },
+                  programId: { type: 'string', description: 'Solana program ID' },
+                  totalVolume: { type: 'number', description: 'All-time trading volume' },
+                  volume24h: { type: 'number', description: '24h trading volume' },
+                  volumeChange: { type: 'number', description: '24h volume change %' },
+                  tvl: { type: 'number', description: 'Total value locked' },
+                  tvlChange: { type: 'number', description: '24h TVL change %' },
+                  marketShare: { type: 'number', description: 'Market share %' },
+                  activeUsers: { type: 'number', description: 'Active users count' },
+                  transactions: { type: 'number', description: 'Transaction count' },
+                  avgTransactionSize: { type: 'number', description: 'Average transaction size' },
+                  fees24h: { type: 'number', description: '24h fees collected' },
+                  totalFees: { type: 'number', description: 'All-time fees' },
+                  commission: { type: 'number', description: 'Trading commission rate' },
+                  status: { type: 'string', description: 'Operational status' },
+                  security: {
+                    type: 'object',
+                    properties: {
+                      audited: { type: 'boolean', description: 'Is audited' },
+                      auditors: { type: 'array', items: { type: 'string' }, description: 'Audit firms' },
+                      lastAudit: { type: 'string', description: 'Last audit date' },
+                      bugBounty: { type: 'boolean', description: 'Has bug bounty' },
+                      multisig: { type: 'boolean', description: 'Uses multisig' },
+                      timelock: { type: 'boolean', description: 'Has timelock' }
+                    }
+                  },
+                  metrics: {
+                    type: 'object',
+                    properties: {
+                      uptime: { type: 'number', description: 'Uptime %' },
+                      avgSlippage: { type: 'number', description: 'Average slippage %' },
+                      poolCount: { type: 'number', description: 'Number of pools' },
+                      tokenCount: { type: 'number', description: 'Number of tokens' },
+                      liquidityDepth: { type: 'number', description: 'Liquidity depth' }
+                    }
+                  },
+                  topPools: { type: 'array', description: 'Top trading pools' },
+                  recentTrades: { type: 'array', description: 'Recent trades' }
+                }
+              }
+            },
+            required: ['success']
+          }
+        },
+        {
+          name: 'get_trending_validators',
+          description: 'Get trending validators ranked by various metrics (stake growth, performance, new entries). Returns: {trending: [{address, name, stake, trend, change24h, apy, commission, uptime}]}. Use case: Discover high-performing validators, track validator growth trends, identify new validators.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              metric: { type: 'string', enum: ['stake', 'performance', 'new'], description: 'Metric to rank by (default: stake)' }
+            }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              trending: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    address: { type: 'string', description: 'Validator address' },
+                    name: { type: 'string', description: 'Validator name' },
+                    stake: { type: 'number', description: 'Total stake amount' },
+                    trend: { type: 'string', enum: ['up', 'down', 'stable'], description: 'Trend direction' },
+                    change24h: { type: 'number', description: '24h change %' },
+                    apy: { type: 'number', description: 'Annual percentage yield' },
+                    commission: { type: 'number', description: 'Commission rate %' },
+                    uptime: { type: 'number', description: 'Uptime %' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          name: 'get_cross_chain_analytics',
+          description: 'Get cross-chain bridge analytics for Solana. Returns: {totalVolume, bridges: [{name, volume24h, transactions, topAssets, supportedChains}]}. Use case: Track cross-chain flows, identify popular bridges, monitor bridge security.',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalVolume: { type: 'number', description: 'Total cross-chain volume' },
+              bridges: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Bridge name (e.g., Wormhole, Allbridge)' },
+                    volume24h: { type: 'number', description: '24h volume' },
+                    transactions: { type: 'number', description: 'Transaction count' },
+                    topAssets: { type: 'array', description: 'Most bridged assets' },
+                    supportedChains: { type: 'array', description: 'Supported chains' }
+                  }
+                }
+              },
+              topAssets: { type: 'array', description: 'Most bridged assets overall' }
+            }
+          }
+        },
+        {
+          name: 'get_bot_analytics',
+          description: 'Get bot activity analytics on Solana. Returns: {totalBots, activeBots, volume24h, topStrategies: [arbitrage, sniper, market-making], avgProfitability}. Use case: Monitor bot activity, identify trading strategies, analyze market making.',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              totalBots: { type: 'number', description: 'Total detected bots' },
+              activeBots: { type: 'number', description: 'Currently active bots' },
+              volume24h: { type: 'number', description: '24h bot trading volume' },
+              topStrategies: { type: 'array', items: { type: 'string' }, description: 'Most common bot strategies' },
+              avgProfitability: { type: 'number', description: 'Average bot profitability %' },
+              detectionMethods: { type: 'array', description: 'Bot detection methods used' }
+            }
+          }
+        },
         // Token & NFT Tools
         {
           name: 'get_token_info',
@@ -2527,6 +2772,68 @@ class OpenSVMServer {
           content: [{
             type: 'text',
             text: JSON.stringify(validatorAnalytics, null, 2)
+          }]
+        };
+
+      case 'get_market_data':
+        if (!isValidSolanaAddress(args.mint)) {
+          throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.mint, 'token mint'));
+        }
+
+        const marketDataParams: any = {
+          endpoint: args.endpoint,
+          mint: args.mint
+        };
+
+        // Add optional parameters
+        if (args.type) marketDataParams.type = args.type;
+        if (args.poolAddress) marketDataParams.poolAddress = args.poolAddress;
+        if (args.baseMint) marketDataParams.baseMint = args.baseMint;
+        if (args.offset) marketDataParams.offset = args.offset;
+
+        const marketData = await this.client.get('/market-data', { params: marketDataParams });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(marketData, null, 2)
+          }]
+        };
+
+      case 'get_dex_profile':
+        const dexProfile = await this.client.get(`/dex/${args.name}`);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(dexProfile, null, 2)
+          }]
+        };
+
+      case 'get_trending_validators':
+        const trendingValidators = await this.client.get('/analytics/trending-validators', {
+          params: args.metric ? { metric: args.metric } : {}
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(trendingValidators, null, 2)
+          }]
+        };
+
+      case 'get_cross_chain_analytics':
+        const crossChainAnalytics = await this.client.get('/analytics/cross-chain');
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(crossChainAnalytics, null, 2)
+          }]
+        };
+
+      case 'get_bot_analytics':
+        const botAnalytics = await this.client.get('/analytics/bots');
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(botAnalytics, null, 2)
           }]
         };
 

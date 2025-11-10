@@ -17,6 +17,7 @@ MCP_SERVER_PATH="$HOME/.osvm/mcp/osvm-mcp/build/index.js"
 TEST_ADDRESS="2wmVCSfPxGPjrnMMn7rchp4uaeoTqN39mXFC2zhPdri9"  # Solana Foundation (active with transactions)
 TEST_ADDRESS_ALT="JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"  # Jupiter (very active)
 TEST_TOKEN_MINT="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  # USDC
+BONK_MINT="DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"  # BONK token (high volume)
 SYSTEM_PROGRAM="11111111111111111111111111111111"
 TOKEN_PROGRAM="TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
 RAYDIUM_PROGRAM="675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"  # Raydium AMM
@@ -145,6 +146,17 @@ test_tool "get_defi_overview" "{}" "DeFi overview"
 test_tool "get_defi_health" "{}" "DeFi health"
 test_tool "get_dex_analytics" "{}" "DEX analytics"
 test_tool "get_validator_analytics" "{}" "Validator analytics"
+test_tool "get_trending_validators" "{\"metric\":\"stake\"}" "Trending validators"
+test_tool "get_cross_chain_analytics" "{}" "Cross-chain analytics"
+test_tool "get_bot_analytics" "{}" "Bot analytics"
+
+# Market Data Tools
+echo -e "\n${BLUE}▶ Market Data Tools${NC}"
+test_tool "get_market_data" "{\"mint\":\"$BONK_MINT\",\"endpoint\":\"markets\"}" "Market data - pools"
+test_tool "get_market_data" "{\"mint\":\"$BONK_MINT\",\"endpoint\":\"ohlcv\",\"type\":\"1H\"}" "Market data - OHLCV 1H"
+test_tool "get_market_data" "{\"mint\":\"$BONK_MINT\",\"endpoint\":\"orderbook\"}" "Market data - orderbook"
+test_tool "get_dex_profile" "{\"name\":\"raydium\"}" "DEX profile - Raydium"
+test_tool "get_dex_profile" "{\"name\":\"phoenix\"}" "DEX profile - Phoenix"
 
 # Search Tools
 echo -e "\n${BLUE}▶ Search Tools${NC}"
