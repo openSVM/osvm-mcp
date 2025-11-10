@@ -394,7 +394,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_account_portfolio',
-          description: 'Get complete account portfolio with prices. Request: {address: string} Response: Array of objects Use case: Portfolio tracking, wallet analysis, asset valuation, DeFi position monitoring.',
+          description: 'Get complete account portfolio with prices. Request: {address: string} Response: {address, timestamp, data: {native: {balance, symbol, price, value, change24h}, tokens: [{balance, symbol, name, price, value}], totalValue, totalTokens, summary}} Use case: Portfolio tracking, wallet analysis, asset valuation, DeFi position monitoring.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -592,7 +592,7 @@ class OpenSVMServer {
         // Block Tools
         {
           name: 'get_block',
-          description: 'Get detailed block information by slot. Request: {slot: number} Response: Array of objects Use case: Block verification, analyze block contents, find transactions in specific block, blockchain forensics.',
+          description: 'Get detailed block information by slot. Request: {slot: number} Response: {slot: number, blockhash: string, transactions: array, blockTime: number, blockHeight: number} Use case: Block verification, analyze block contents, find transactions in specific block, blockchain forensics.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -638,7 +638,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_block_stats',
-          description: 'Get blockchain statistics and performance metrics. Response: Array of objects. Request: {} Use case: Network performance monitoring, TPS calculation, blockchain health checks. Note: This endpoint is currently unavailable due to API issues.',
+          description: 'Get blockchain statistics and performance metrics. Request: {} Response: {currentSlot: number, avgBlockTime: number, tps: number, recentBlockTimes: number[]} Use case: Network performance monitoring, TPS calculation, blockchain health checks. Note: This endpoint is currently unavailable due to API issues.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -708,7 +708,7 @@ class OpenSVMServer {
         // Analytics Tools
         {
           name: 'get_defi_overview',
-          description: 'Get Solana DeFi ecosystem overview. Response: Array of objects. Request: {} Use case: DeFi market analysis, TVL tracking, protocol comparison, market research.',
+          description: 'Get Solana DeFi ecosystem overview. Request: {} Response: {totalTvl: number, totalVolume24h: number, activeDexes: number, totalTransactions: number, topProtocols: [{name, tvl, volume24h, category}]} Use case: DeFi market analysis, TVL tracking, protocol comparison, market research.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -759,7 +759,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_defi_health',
-          description: 'Get DeFi ecosystem health indicators. Response: Array of objects. Request: {} Use case: Risk assessment, market health monitoring, identify systemic risks, DeFi safety checks.',
+          description: 'Get DeFi ecosystem health indicators. Request: {} Response: {riskScore: number, liquidityDepth: number, marketStability: number, alerts: string[]} Use case: Risk assessment, market health monitoring, identify systemic risks, DeFi safety checks.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -776,7 +776,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_validator_analytics',
-          description: 'Get Solana validator network statistics. Response: Array of objects. Request: {} Use case: Network health monitoring, stake distribution analysis, validator selection, decentralization metrics.',
+          description: 'Get Solana validator network statistics. Request: {} Response: {totalValidators: number, activeStake: number, averageCommission: number, decentralization: object, topValidators: array} Use case: Network health monitoring, stake distribution analysis, validator selection, decentralization metrics.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -992,7 +992,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_cross_chain_analytics',
-          description: 'Get cross-chain bridge analytics for Solana. Response: Array of objects. Request: {} Use case: Track cross-chain flows, identify popular bridges, monitor bridge security.',
+          description: 'Get cross-chain bridge analytics for Solana. Request: {} Response: {totalVolume: number, bridges: [{name, volume24h, transactions, topAssets, supportedChains}], topAssets: array} Use case: Track cross-chain flows, identify popular bridges, monitor bridge security.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1020,7 +1020,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_bot_analytics',
-          description: 'Get bot activity analytics on Solana. Response: Array of objects. Request: {} Use case: Monitor bot activity, identify trading strategies, analyze market making.',
+          description: 'Get bot activity analytics on Solana. Request: {} Response: {totalBots: number, activeBots: number, volume24h: number, topStrategies: string[], avgProfitability: number, detectionMethods: array} Use case: Monitor bot activity, identify trading strategies, analyze market making.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1073,7 +1073,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_token_metadata',
-          description: 'Batch fetch token metadata for multiple mints. Request: {mints: array} Response: Array of objects Use case: Portfolio token info, multi-token analysis, batch validation.',
+          description: 'Batch fetch token metadata for multiple mints. Request: {mints: array} Response: [{mint, decimals, supply, metadata: {name, symbol, description, uri}}] Use case: Portfolio token info, multi-token analysis, batch validation.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1109,7 +1109,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_nft_collections',
-          description: 'List NFT collections with stats. Request: {limit?: number, sort?: string} Response: Array of objects Use case: NFT marketplace data, collection discovery, floor price tracking, volume analysis.',
+          description: 'List NFT collections with stats. Request: {limit?: number, sort?: string} Response: [{name, symbol, floorPrice, volume24h, totalItems, listed, verified}] Use case: NFT marketplace data, collection discovery, floor price tracking, volume analysis.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1135,7 +1135,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_trending_nfts',
-          description: 'Get trending NFT collections (24h volume). Response: Array of objects. Request: {} Use case: Identify hot NFT collections, market trends, viral collections, trading opportunities.',
+          description: 'Get trending NFT collections (24h volume). Request: {} Response: [{name: string, symbol: string, volume24h: number, volumeChange: number, floorPrice: number}] Use case: Identify hot NFT collections, market trends, viral collections, trading opportunities.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1221,7 +1221,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_usage_stats',
-          description: 'Get API usage statistics and billing info (requires JWT). Response: Array of objects. Request: {} Use case: Track API consumption, analyze costs, budget monitoring, usage optimization.',
+          description: 'Get API usage statistics and billing info (requires JWT). Request: {} Response: {totalRequests: number, totalTokensSpent: number, avgCostPerRequest: number, recentTransactions: array} Use case: Track API consumption, analyze costs, budget monitoring, usage optimization.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1525,7 +1525,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getSlot',
-          description: 'Get current slot number. Request: {commitment?: string}. Response: {} Use case: Timestamp transactions, monitor blockchain progress, calculate block times.',
+          description: 'Get current slot number. Request: {commitment?: string}. Response: {result: number} - Current slot number. Use case: Timestamp transactions, monitor blockchain progress, calculate block times.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1539,7 +1539,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getBlockHeight',
-          description: 'Get current block height. Request: {commitment?: string}. Response: {} Use case: Monitor chain progress, calculate block confirmations, blockchain metrics.',
+          description: 'Get current block height. Request: {commitment?: string}. Response: {result: number} - Current block height. Use case: Monitor chain progress, calculate block confirmations, blockchain metrics.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1698,7 +1698,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getHealth',
-          description: 'Get node health status. Request: {} Response: {} Use case: Node monitoring, health checks, uptime verification.',
+          description: 'Get node health status. Request: {} Response: {result: string} - "ok" if healthy. Use case: Node monitoring, health checks, uptime verification.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1710,7 +1710,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getVersion',
-          description: 'Get Solana node version. Request: {} Response: {} Use case: Version verification, compatibility checks, node info.',
+          description: 'Get Solana node version. Request: {} Response: {result: {"solana-core": string, "feature-set": number}} Use case: Version verification, compatibility checks, node info.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1748,7 +1748,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_sendTransaction',
-          description: 'Submit signed transaction to the network. Request: {transaction: string, encoding?: string, skipPreflight?: boolean, preflightCommitment?: string, maxRetries?: number}. Response: {} Use case: Execute transactions, transfer tokens/SOL, invoke programs. NOTE: Transaction must be properly signed!',
+          description: 'Submit signed transaction to the network. Request: {transaction: string, encoding?: string, skipPreflight?: boolean, preflightCommitment?: string, maxRetries?: number}. Response: {result: string} - Transaction signature. Use case: Execute transactions, transfer tokens/SOL, invoke programs. NOTE: Transaction must be properly signed!',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1767,7 +1767,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getTransaction',
-          description: 'Get confirmed transaction details. Returns NESTED: {slot, transaction: {message, signatures}, meta: {err, fee, preBalances, postBalances, logMessages, preTokenBalances, postTokenBalances}, blockTime}. Access via: result.meta.err (null if success), result.meta.logMessages. Request: {signature: string, encoding?: string, maxSupportedTransactionVersion?: number, commitment?: string}. Response: {} Use case: Transaction verification, debugging, analyzing token transfers.',
+          description: 'Get confirmed transaction details. Returns NESTED: {slot, transaction: {message, signatures}, meta: {err, fee, preBalances, postBalances, logMessages, preTokenBalances, postTokenBalances}, blockTime}. Access via: result.meta.err (null if success), result.meta.logMessages. Request: {signature: string, encoding?: string, maxSupportedTransactionVersion?: number, commitment?: string}. Response: {result: {slot, transaction, meta, blockTime}} Use case: Transaction verification, debugging, analyzing token transfers.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1786,7 +1786,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getBlock',
-          description: 'Get confirmed block with transactions. Returns NESTED: {blockhash, previousBlockhash, parentSlot, transactions: [...], rewards: [...], blockTime, blockHeight}. Access via: result.transactions, result.blockTime. Request: {slot: number, encoding?: string, transactionDetails?: string, maxSupportedTransactionVersion?: number, rewards?: boolean, commitment?: string}. Response: {} Use case: Block analysis, transaction discovery, blockchain forensics.',
+          description: 'Get confirmed block with transactions. Returns NESTED: {blockhash, previousBlockhash, parentSlot, transactions: [...], rewards: [...], blockTime, blockHeight}. Access via: result.transactions, result.blockTime. Request: {slot: number, encoding?: string, transactionDetails?: string, maxSupportedTransactionVersion?: number, rewards?: boolean, commitment?: string}. Response: {result: {blockhash, previousBlockhash, parentSlot, transactions, rewards, blockTime, blockHeight}} Use case: Block analysis, transaction discovery, blockchain forensics.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1807,7 +1807,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getMinimumBalanceForRentExemption',
-          description: 'Get minimum lamports required for rent exemption. Request: {dataLength: number, commitment?: string}. Response: {} Use case: Calculate rent for new accounts, transaction planning, account creation.',
+          description: 'Get minimum lamports required for rent exemption. Request: {dataLength: number, commitment?: string}. Response: {result: number} - Minimum lamports. Use case: Calculate rent for new accounts, transaction planning, account creation.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1824,7 +1824,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_requestAirdrop',
-          description: 'Request SOL airdrop (devnet/testnet only). Request: {address: string, lamports: number, commitment?: string}. Response: {} Use case: Fund test wallets, development testing. NOTE: Only works on devnet/testnet!',
+          description: 'Request SOL airdrop (devnet/testnet only). Request: {address: string, lamports: number, commitment?: string}. Response: {result: string} - Transaction signature. Use case: Fund test wallets, development testing. NOTE: Only works on devnet/testnet!',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1947,17 +1947,21 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getTransactionCount',
-          description: 'Get total transaction count on the blockchain. Request: {commitment?: string} Response: {count: number} Use case: Network statistics, blockchain metrics.',
+          description: 'Get total transaction count on the blockchain. Request: {commitment?: string} Response: {result: number} - Total number of transactions processed. Use case: Network statistics, blockchain metrics.',
           inputSchema: {
             type: 'object',
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Total number of transactions processed on the blockchain'
           }
         },
         {
           name: 'rpc_getBlockTime',
-          description: 'Get estimated block time (Unix timestamp). Request: {slot: number}. Response: {} Use case: Convert slot to time, historical analysis.',
+          description: 'Get estimated block time (Unix timestamp). Request: {slot: number}. Response: {result: number} - Unix timestamp. Use case: Convert slot to time, historical analysis.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1968,22 +1972,26 @@ class OpenSVMServer {
         ,
           outputSchema: {
             type: 'number',
-            description: 'Total number of transactions processed'
+            description: 'Unix timestamp in seconds when the block was produced'
           }
         },
         {
           name: 'rpc_getSlotLeader',
-          description: 'Get current slot leader. Request: {commitment?: string} Response: {leader: string} Use case: Validator monitoring, network analysis.',
+          description: 'Get current slot leader. Request: {commitment?: string} Response: {result: string} - Validator identity pubkey for current slot leader. Use case: Validator monitoring, network analysis.',
           inputSchema: {
             type: 'object',
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'string',
+            description: 'Validator identity pubkey for current slot leader'
           }
         },
         {
           name: 'rpc_getSlotLeaders',
-          description: 'Get slot leaders for a range. Request: {startSlot: number, limit: number}. Response: {} Use case: Leader schedule, validator rotation analysis.',
+          description: 'Get slot leaders for a range. Request: {startSlot: number, limit: number}. Response: {result: string[]} - Array of validator pubkeys. Use case: Leader schedule, validator rotation analysis.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1994,13 +2002,14 @@ class OpenSVMServer {
           }
         ,
           outputSchema: {
-            type: 'string',
-            description: 'Validator identity pubkey for current slot leader'
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Array of validator identity pubkeys for each slot in the range'
           }
         },
         {
           name: 'rpc_getVoteAccounts',
-          description: 'Get validator vote accounts. Returns NESTED: {current: [{votePubkey, nodePubkey, activatedStake, commission, ...}], delinquent: [...]}. Access via: result.current, result.delinquent. Request: {votePubkey?: string, commitment?: string} Response: Array of objects Use case: Validator selection, staking analysis, network health.',
+          description: 'Get validator vote accounts. Returns NESTED: {current: [{votePubkey, nodePubkey, activatedStake, commission, ...}], delinquent: [...]}. Access via: result.current, result.delinquent. Request: {votePubkey?: string, commitment?: string} Response: {result: {current: array, delinquent: array}} Use case: Validator selection, staking analysis, network health.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2018,7 +2027,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getSupply',
-          description: 'Get total SOL supply information. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Access via: result.value.total, result.value.circulating. Request: {excludeNonCirculatingAccountsList?: boolean, commitment?: string} Response: Array of objects Use case: Economics analysis, market cap calculations.',
+          description: 'Get total SOL supply information. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Access via: result.value.total, result.value.circulating. Request: {excludeNonCirculatingAccountsList?: boolean, commitment?: string} Response: {result: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}} Use case: Economics analysis, market cap calculations.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2050,7 +2059,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getClusterNodes',
-          description: 'Get cluster node information. Response: Array of objects. Request: {} Use case: Network topology, RPC endpoint discovery, version monitoring.',
+          description: 'Get cluster node information. Request: {} Response: {result: [{pubkey, gossip, tpu, rpc, version}]} Use case: Network topology, RPC endpoint discovery, version monitoring.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -2150,7 +2159,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getClusterNodes',
-          description: 'Get cluster node information. Response: Array of objects. Request: {} Use case: Network topology, node discovery, cluster health.',
+          description: 'Get cluster node information. Request: {} Response: {result: [{pubkey, gossip, tpu, rpc, version}]} Use case: Network topology, node discovery, cluster health.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -2171,7 +2180,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getSupply',
-          description: 'Get information about current supply. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Request: {commitment?: string} Response: Array of objects Use case: Economic analysis, circulating supply tracking.',
+          description: 'Get information about current supply. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Request: {commitment?: string} Response: {result: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}} Use case: Economic analysis, circulating supply tracking.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2202,7 +2211,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getVoteAccounts',
-          description: 'Get vote account status. Request: {commitment?: string} Response: Array of objects Use case: Validator voting status, stake distribution.',
+          description: 'Get vote account status. Request: {commitment?: string} Response: {result: {current: array, delinquent: array}} Use case: Validator voting status, stake distribution.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2219,7 +2228,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getTokenAccountsByDelegate',
-          description: 'Get token accounts by delegate authority. Returns NESTED: {context, value: [{pubkey, account: {data: {parsed: {info: {...}}}}}]}. Access via: result.value[0].account.data.parsed.info. Request: {delegate: string, mint?: string, programId?: string, encoding?: string, commitment?: string} Response: Array of objects Use case: Delegated account management, DeFi applications.',
+          description: 'Get token accounts by delegate authority. Returns NESTED: {context, value: [{pubkey, account: {data: {parsed: {info: {...}}}}}]}. Access via: result.value[0].account.data.parsed.info. Request: {delegate: string, mint?: string, programId?: string, encoding?: string, commitment?: string} Response: {result: {context, value: [{pubkey, account}]}} Use case: Delegated account management, DeFi applications.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2256,7 +2265,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getTokenLargestAccounts',
-          description: 'Get largest token accounts by balance. Returns NESTED: {context, value: [{address, amount, decimals, uiAmount, uiAmountString}, ...]}. Access via: result.value[0].uiAmount. Request: {mint: string, commitment?: string} Response: Array of objects Use case: Whale watching, token distribution analysis, holder rankings.',
+          description: 'Get largest token accounts by balance. Returns NESTED: {context, value: [{address, amount, decimals, uiAmount, uiAmountString}, ...]}. Access via: result.value[0].uiAmount. Request: {mint: string, commitment?: string} Response: {result: {context, value: [{address, amount, decimals, uiAmount, uiAmountString}]}} Use case: Whale watching, token distribution analysis, holder rankings.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2293,7 +2302,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getLargestAccounts',
-          description: 'Get largest accounts by SOL balance. Returns NESTED: {context, value: [{address, lamports}, ...]}. Access via: result.value[0].lamports. Request: {filter?: string, commitment?: string} Response: Array of objects Use case: Whale watching, richlist analysis.',
+          description: 'Get largest accounts by SOL balance. Returns NESTED: {context, value: [{address, lamports}, ...]}. Access via: result.value[0].lamports. Request: {filter?: string, commitment?: string} Response: {result: {context, value: [{address, lamports}]}} Use case: Whale watching, richlist analysis.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2326,7 +2335,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getLeaderSchedule',
-          description: 'Get leader schedule for an epoch. Request: {slot?: number, identity?: string, commitment?: string}. Response: {} Use case: Validator schedule, leader prediction.',
+          description: 'Get leader schedule for an epoch. Request: {slot?: number, identity?: string, commitment?: string}. Response: {result: object} - Object mapping validator pubkeys to arrays of slot numbers. Use case: Validator schedule, leader prediction.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2342,7 +2351,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_minimumLedgerSlot',
-          description: 'Get lowest slot that the node has ledger information for. Request: {} Response: {} Use case: Data availability check, historical query validation.',
+          description: 'Get lowest slot that the node has ledger information for. Request: {} Response: {result: number} - Lowest slot in ledger. Use case: Data availability check, historical query validation.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -2354,7 +2363,7 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getFirstAvailableBlock',
-          description: 'Get first available block in the ledger. Request: {} Response: {} Use case: Historical data boundaries, ledger pruning info.',
+          description: 'Get first available block in the ledger. Request: {} Response: {result: number} - Slot of first available block. Use case: Historical data boundaries, ledger pruning info.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -2366,18 +2375,22 @@ class OpenSVMServer {
         },
         {
           name: 'rpc_getBlockHeight',
-          description: 'Get current block height (different from slot). Returns NESTED: number. Access via: result. Request: {commitment?: string} Response: {height: number} Use case: Block confirmations, chain progress tracking.',
+          description: 'Get current block height (different from slot). Request: {commitment?: string} Response: {result: number} - Current block height. Use case: Block confirmations, chain progress tracking.',
           inputSchema: {
             type: 'object',
             properties: {
               commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
             }
+          },
+          outputSchema: {
+            type: 'number',
+            description: 'Current block height (number of blocks produced)'
           }
         },
         // Utility Tools
         {
           name: 'solana_rpc_call',
-          description: 'Make direct Solana RPC calls through OpenSVM proxy. Request: {method: string, params?: array}. Response: {} Use case: Access methods not wrapped by other tools (getVoteAccounts, getInflationRate, etc.), custom RPC queries, advanced blockchain operations.',
+          description: 'Make direct Solana RPC calls through OpenSVM proxy. Request: {method: string, params?: array}. Response: {result: any} - Format varies by RPC method. Use case: Access methods not wrapped by other tools (getVoteAccounts, getInflationRate, etc.), custom RPC queries, advanced blockchain operations.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2402,7 +2415,7 @@ class OpenSVMServer {
       tools: [
         {
           name: 'tools/list',
-          description: 'List all available tools (compatibility shim for stdio transport). Response: Array of objects. Request: {}',
+          description: 'List all available tools (compatibility shim for stdio transport). Request: {} Response: [{name, description, inputSchema, outputSchema}] - Array of all available tool definitions',
           inputSchema: {
             type: 'object',
             properties: {}
