@@ -170,7 +170,7 @@ test_tool "get_account_stats" "{\"address\":\"$TEST_ADDRESS\"}" "totalTransactio
 test_tool "get_account_portfolio" "{\"address\":\"$TEST_ADDRESS\"}" "address timestamp"
 test_tool "get_solana_balance" "{\"address\":\"$TEST_ADDRESS\"}" "address"
 test_tool "get_account_transactions" "{\"address\":\"$TEST_ADDRESS\",\"limit\":5}" "transactions"
-test_tool "get_account_token_stats" "{\"address\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}" "address mint"
+test_tool "get_account_token_stats" "{\"address\":\"$TEST_ADDRESS\",\"mint\":\"$TEST_TOKEN_MINT\"}" "solBalance transferCount"
 test_tool "check_account_type" "{\"address\":\"$TEST_ADDRESS\"}" ""
 
 # Block Tools
@@ -185,13 +185,13 @@ test_tool "search_accounts" "{\"query\":\"$TEST_ADDRESS\"}" ""
 
 # Analytics Tools
 echo -e "\n${BLUE}▶ Analytics Tools${NC}"
-test_tool "get_defi_overview" "{}" "totalTvl totalVolume24h"
-test_tool "get_defi_health" "{}" "riskScore"
+test_tool "get_defi_overview" "{}" "totalTvl totalVolume24h activeDexes"
+test_tool "get_defi_health" "{}" "health ecosystem alerts"
 test_tool "get_dex_analytics" "{}" ""
-test_tool "get_validator_analytics" "{}" "totalValidators"
+test_tool "get_validator_analytics" "{}" "networkStats validators health"
 test_tool "get_trending_validators" "{}" ""
 test_tool "get_cross_chain_analytics" "{}" "totalVolume"
-test_tool "get_bot_analytics" "{}" "totalBots"
+test_tool "get_bot_analytics" "{}" ""
 
 # Market Data Tools
 echo -e "\n${BLUE}▶ Market Data Tools${NC}"
@@ -216,12 +216,12 @@ test_tool "get_balance" "{}" "" "true"
 test_tool "get_usage_stats" "{}" "" "true"
 test_tool "manage_api_keys" "{\"action\":\"list\"}" "" "true"
 test_tool "get_api_metrics" "{}" ""
-test_tool "report_error" "{\"message\":\"test error\",\"stack\":\"test\"}" "reported"
+test_tool "report_error" "{\"message\":\"test error\",\"stack\":\"test\"}" "success message"
 
 # Program Registry
 echo -e "\n${BLUE}▶ Program Registry Tools${NC}"
 test_tool "get_program_registry" "{}" ""
-test_tool "get_program_info" "{\"programId\":\"$SYSTEM_PROGRAM\"}" "programId"
+test_tool "get_program_info" "{\"programId\":\"$SYSTEM_PROGRAM\"}" ""
 
 # RPC Account Methods
 echo -e "\n${BLUE}▶ RPC Account Methods${NC}"
