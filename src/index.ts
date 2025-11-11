@@ -297,15 +297,15 @@ class OpenSVMServer {
         },
         {
           name: 'batch_transactions',
-          description: 'Fetch multiple transactions in one call (up to 20). Request: {signatures: array, includeDetails?: boolean} Response: Array of objects Use case: Bulk transaction analysis, historical data collection, parallel processing of multiple transactions.',
+          description: 'Fetch multiple transactions in one call (up to 100). Request: {signatures: array, includeDetails?: boolean} Response: Array of objects Use case: Bulk transaction analysis, historical data collection, parallel processing of multiple transactions.',
           inputSchema: {
             type: 'object',
             properties: {
               signatures: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Array of transaction signatures (max 20)',
-                maxItems: 20
+                description: 'Array of transaction signatures (max 100)',
+                maxItems: 100
               },
               includeDetails: { type: 'boolean', description: 'Include full transaction details (default true)' }
             },
@@ -352,7 +352,7 @@ class OpenSVMServer {
         },
         {
           name: 'explain_transaction',
-          description: 'Get human-readable explanation of transaction. Request: {signature: string, language?: string} Response: {signature: string, explanation: string, language?: string} Use case: User-friendly transaction summaries, educational purposes, non-technical explanations.',
+          description: 'Get human-readable explanation of transaction. Request: {signature: string, language?: string} Response: {success: boolean, data: {explanation}, timestamp: number} Use case: User-friendly transaction summaries, educational purposes, non-technical explanations.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -505,7 +505,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_account_transactions',
-          description: 'Get paginated transaction history for account with optional date filtering. Request: {address: string, limit?: number, before?: string} Response: Array of objects Use case: Transaction history tracking, account activity analysis, audit trails, finding transactions in date ranges.',
+          description: 'Get paginated transaction history for account with optional date filtering. Request: {address: string, limit?: number, before?: string} Response: OBJECT with {transactions: ARRAY, address: string}. Access transaction array: response.transactions (NOT response directly). Each transaction object has {signature, timestamp, slot, success, accounts, transfers, details}. Use case: Transaction history tracking, account activity analysis, audit trails, finding transactions in date ranges.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -549,7 +549,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_account_token_stats',
-          description: 'Get specific token statistics for an account/mint pair. Request: {address: string, mint: string} Response: {address: string, mint: string, balance?: number, transferCount?: number, lastActivity?: number} Use case: Track specific token holdings, analyze token-specific activity, monitor airdrop claims.',
+          description: 'Get specific token statistics for an account/mint pair. Request: {address: string, mint: string} Response: {solBalance: number, transferCount: number} Use case: Track specific token holdings, analyze token-specific activity, monitor airdrop claims.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -638,7 +638,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_block_stats',
-          description: 'Get blockchain statistics and performance metrics. Request: {} Response: {currentSlot: number, avgBlockTime: number, tps: number, recentBlockTimes: number[]} Use case: Network performance monitoring, TPS calculation, blockchain health checks. Note: This endpoint is currently unavailable due to API issues.',
+          description: 'Get blockchain statistics and performance metrics. Request: {} Response: {success: boolean, data: {currentSlot: number, averageBlockTime: number, epochInfo: object, recentTPS: number, totalTransactions: number}, timestamp: number} Use case: Network performance monitoring, TPS calculation, blockchain health checks. Note: This endpoint is currently unavailable due to API issues.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -708,7 +708,7 @@ class OpenSVMServer {
         // Analytics Tools
         {
           name: 'get_defi_overview',
-          description: 'Get Solana DeFi ecosystem overview. Request: {} Response: {totalTvl: number, totalVolume24h: number, activeDexes: number, totalTransactions: number, topProtocols: [{name, tvl, volume24h, category}]} Use case: DeFi market analysis, TVL tracking, protocol comparison, market research.',
+          description: 'Get Solana DeFi ecosystem overview. Request: {} Response: {success: boolean, data: {totalTvl: number, totalVolume24h: number, activeDexes: number, topProtocols: array, totalTransactions: number, healthStatus: object, sectorBreakdown: object}, timestamp: number}. Access data fields: response.data.totalTvl (NOT response.totalTvl). Each protocol in topProtocols array has {name, tvl, volume24h, category}. Use case: DeFi market analysis, TVL tracking, protocol comparison, market research.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -759,7 +759,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_defi_health',
-          description: 'Get DeFi ecosystem health indicators. Request: {} Response: {riskScore: number, liquidityDepth: number, marketStability: number, alerts: string[]} Use case: Risk assessment, market health monitoring, identify systemic risks, DeFi safety checks.',
+          description: 'Get DeFi ecosystem health indicators. Request: {} Response: {success: boolean, data: {health: object, ecosystem: object, protocols: array, alerts: array, rankings: array}, timestamp: number} Use case: Risk assessment, market health monitoring, identify systemic risks, DeFi safety checks.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -776,7 +776,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_validator_analytics',
-          description: 'Get Solana validator network statistics. Request: {} Response: {totalValidators: number, activeStake: number, averageCommission: number, decentralization: object, topValidators: array} Use case: Network health monitoring, stake distribution analysis, validator selection, decentralization metrics.',
+          description: 'Get Solana validator network statistics. Request: {} Response: {success: boolean, data: {networkStats: object, validators: array, health: object, decentralization: object, rpcNodes: array}, timestamp: number} Use case: Network health monitoring, stake distribution analysis, validator selection, decentralization metrics.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -794,13 +794,12 @@ class OpenSVMServer {
         },
         {
           name: 'get_market_data',
-          description: 'Advanced market data with multiple endpoints: OHLCV (candlestick), orderbook depth, and pool/liquidity information. For simple price charts use the "chart" tool instead. Supports timeframes: 1m, 5m, 15m, 30m, 1H, 2H, 4H, 6H, 8H, 12H, 1D, 3D, 1W, 1M. Request: {mint: string, endpoint: "ohlcv"|"markets"|"orderbook", type?: string, poolAddress?: string, baseMint?: string, offset?: string} Response: Varies by endpoint. Use cases: Orderbook analysis (endpoint=orderbook), pool discovery (endpoint=markets), advanced charting (endpoint=ohlcv).',
+          description: 'Get orderbook depth and pool/liquidity information for trading analysis. Supports two endpoints: endpoint="orderbook" for market depth and bid-ask analysis, endpoint="markets" for pool discovery and liquidity tracking. Request: {mint: string, endpoint: "markets"|"orderbook", poolAddress?: string, baseMint?: string, offset?: string}. Use cases: Analyzing order book liquidity, finding trading pools, tracking market depth.',
           inputSchema: {
             type: 'object',
             properties: {
               mint: { type: 'string', description: 'Token mint address (required)' },
-              endpoint: { type: 'string', enum: ['ohlcv', 'markets', 'orderbook'], description: 'Data type to fetch: ohlcv (candlestick/chart), markets (pools/liquidity), orderbook (market depth)' },
-              type: { type: 'string', enum: ['1m', '5m', '15m', '30m', '1H', '2H', '4H', '6H', '8H', '12H', '1D', '3D', '1W', '1M'], description: 'Timeframe for OHLCV data (default: 1H)' },
+              endpoint: { type: 'string', enum: ['markets', 'orderbook'], description: 'Data type to fetch: markets (pools/liquidity), orderbook (market depth)' },
               poolAddress: { type: 'string', description: 'Specific pool address for pool-specific data (optional)' },
               baseMint: { type: 'string', description: 'Filter markets by base token mint (optional)' },
               offset: { type: 'string', description: 'Price offset in basis points for orderbook (default: 100)' }
@@ -895,14 +894,35 @@ class OpenSVMServer {
         },
         {
           name: 'chart',
-          description: 'Get ultra-optimized OHLCV candlestick/price chart data for tokens. Returns data in compact array format [o,h,l,c,v,t_delta] with zero-volume candles filtered by default (78% token reduction vs standard format). Aliases: ohlcv, candles, prices. Supports timeframes: 1m, 5m, 15m, 30m, 1H (default), 2H, 4H, 6H, 8H, 12H, 1D, 3D, 1W, 1M. Request: {mint: string, interval?: string, includeZeroVolume?: boolean}. Response: Token info, compact candle arrays with delta-encoded timestamps, metadata with format definition, pools, and technical indicators (MA7, MA25, MACD). Reconstruct timestamp: t_start + sum(previous_deltas) + current_delta. Use case: Efficient price analysis, technical indicators, trend identification with minimal token usage.',
+          description: '📊 PRIMARY TOOL FOR ALL OHLCV/CANDLESTICK/PRICE CHART DATA. Returns ARRAYS not objects! Request: {mint: string, interval?: "1m"|"5m"|"15m"|"30m"|"1H"|"2H"|"4H"|"6H"|"8H"|"12H"|"1D"|"3D"|"1W"|"1M", timeFrom?: unix_seconds, timeTo?: unix_seconds, includeZeroVolume?: bool}. TIME RANGE: Use timeFrom/timeTo for exact ranges (e.g., timeFrom=1704067200, timeTo=1735689600 for all of 2024), OR omit for default: 1m=~16h, 5m=~3.5d, 1H=~30d, 1D=~1y. Response: {data: {items: [ARRAY, ARRAY, ...]}, metadata: {currency: "usd"|"sol"|"btc", format: ["o","h","l","c","v_CURRENCY","t_delta"], t_start: unix_timestamp}}. CRITICAL: data.items is array of arrays (NOT objects). Each candle is 6-element array [open, high, low, close, volume_in_currency, time_delta]. Prices (OHLC) and volume are in SAME currency (check metadata.currency, usually "usd"). Volume computed as avg(high,low) * token_volume. DO NOT use .close or .open - use array indices! Access: candles = response.data.items (array), first = candles[0] (array), open = first[0], high = first[1], low = first[2], close = first[3], volume = first[4], time_delta = first[5]. Map example: closes = map(candles, lambda c: c[3]). NO object keys!',
           inputSchema: {
             type: 'object',
             properties: {
-              mint: { type: 'string', description: 'Token mint address (required)' },
-              interval: { type: 'string', enum: ['1m', '5m', '15m', '30m', '1H', '2H', '4H', '6H', '8H', '12H', '1D', '3D', '1W', '1M'], description: 'Candlestick interval/timeframe (default: 1H)' },
-              days: { type: 'number', description: 'Number of days of historical data to fetch (default: 7)' },
-              includeZeroVolume: { type: 'boolean', description: 'Include zero-volume candles (default: false). When false, filters out ~70-80% of candles for efficiency.' }
+              mint: {
+                type: 'string',
+                description: 'Token mint address (Solana base58 public key, 32-44 chars). Example: "So11111111111111111111111111111111111111112"',
+                minLength: 32,
+                maxLength: 44
+              },
+              interval: {
+                type: 'string',
+                enum: ['1m', '5m', '15m', '30m', '1H', '2H', '4H', '6H', '8H', '12H', '1D', '3D', '1W', '1M'],
+                description: 'Candlestick interval/timeframe. CONTROLS TIME RANGE: 1m=~16h of data (~1000 candles), 5m=~3.5d, 15m=~10d, 30m=~20d, 1H=~30d (default), 2H=~60d, 4H=~120d, 1D=~1y, 1W=~7y, 1M=~30y. Choose interval based on desired time range (e.g., use 1D for yearly analysis, 1H for monthly, 1m for intraday). Shorter intervals = more granularity but less historical range.',
+                default: '1H'
+              },
+              includeZeroVolume: {
+                type: 'boolean',
+                description: 'Include zero-volume candles in results (default: false). When false, filters out ~70-80% of candles for 78% token reduction. Set to true only if you need complete time-series data with all timestamps.',
+                default: false
+              },
+              timeFrom: {
+                type: 'number',
+                description: 'Start of time range as Unix timestamp in seconds. Example: 1704067200 (Jan 1, 2024). Use with timeTo to get specific date range. If not provided, returns most recent data based on interval.'
+              },
+              timeTo: {
+                type: 'number',
+                description: 'End of time range as Unix timestamp in seconds. Example: 1735689600 (Jan 1, 2025). Use with timeFrom to get specific date range. If not provided, defaults to current time.'
+              }
             },
             required: ['mint']
           },
@@ -949,29 +969,40 @@ class OpenSVMServer {
               },
               metadata: {
                 type: 'object',
-                description: 'Metadata for all candles (ultra-optimized format)',
+                description: 'Metadata explaining the ultra-compact data format and providing reconstruction instructions',
                 properties: {
-                  address: { type: 'string', description: 'Token mint address' },
-                  type: { type: 'string', description: 'Candle interval type (1m, 5m, 1H, etc)' },
-                  currency: { type: 'string', description: 'Price currency (usd)' },
-                  format: { type: 'array', description: 'Array format: [o, h, l, c, v, t_delta]' },
-                  t_start: { type: 'number', description: 'Starting timestamp (unix seconds). Add deltas to reconstruct timestamps.' },
-                  filtered: { type: 'boolean', description: 'Whether zero-volume candles were filtered' },
-                  original_count: { type: 'number', description: 'Original number of candles before filtering' },
-                  filtered_count: { type: 'number', description: 'Number of candles after filtering' }
+                  address: { type: 'string', description: 'Token mint address that was queried' },
+                  type: { type: 'string', description: 'Candle interval type requested (1m, 5m, 1H, etc)', example: '1H' },
+                  currency: { type: 'string', description: 'Price currency for OHLCV values', enum: ['usd'], default: 'usd' },
+                  format: {
+                    type: 'array',
+                    description: 'Array format definition: [open, high, low, close, volume, time_delta_seconds]. Each candle is an array of 6 numbers.',
+                    items: { type: 'string' },
+                    default: ['o', 'h', 'l', 'c', 'v', 't_delta']
+                  },
+                  t_start: {
+                    type: 'number',
+                    description: 'Starting timestamp in unix seconds (e.g., 1699876800). To reconstruct each candle timestamp: t_start + sum(all_previous_t_deltas) + current_t_delta. First candle has t_delta=0.',
+                    example: 1699876800
+                  },
+                  filtered: { type: 'boolean', description: 'True if zero-volume candles were filtered out (when includeZeroVolume=false)' },
+                  original_count: { type: 'number', description: 'Original number of candles before filtering (if filtered=true)', example: 1000 },
+                  filtered_count: { type: 'number', description: 'Number of candles after filtering (actual data.items.length)', example: 250 }
                 }
               },
               data: {
                 type: 'object',
-                description: 'OHLCV candlestick data (ultra-compact array format)',
+                description: 'OHLCV candlestick data in ultra-compact array format. Each candle is [open, high, low, close, volume, time_delta]. Example: [[0.123, 0.125, 0.122, 0.124, 1000, 0], [0.124, 0.126, 0.123, 0.125, 1500, 3600]] means first candle at t_start, second at t_start + 3600 seconds (1 hour later).',
                 properties: {
                   items: {
                     type: 'array',
-                    description: 'Array of candles in format [o,h,l,c,v,t_delta]. t_delta is seconds since previous candle (0 for first). Reconstruct timestamp: t_start + sum(all previous deltas) + current_delta. Zero-volume candles filtered by default.',
+                    description: 'Array of candles, each in format [open, high, low, close, volume, time_delta_seconds]. time_delta is seconds since previous candle (0 for first candle). To get timestamp for candle N: metadata.t_start + sum(items[0...N-1][5]) + items[N][5]. Zero-volume candles are filtered by default unless includeZeroVolume=true.',
                     items: {
                       type: 'array',
-                      description: '[open, high, low, close, volume, time_delta_seconds]',
-                      items: { type: 'number' }
+                      description: 'Single candle: [open_price, high_price, low_price, close_price, volume_usd, seconds_since_previous_candle]. Prices in USD, volume in USD. Example: [0.00012345, 0.00012678, 0.00012100, 0.00012567, 123456.78, 3600]',
+                      items: { type: 'number' },
+                      minItems: 6,
+                      maxItems: 6
                     }
                   }
                 }
@@ -1123,7 +1154,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_bot_analytics',
-          description: 'Get bot activity analytics on Solana. Request: {} Response: {totalBots: number, activeBots: number, volume24h: number, topStrategies: string[], avgProfitability: number, detectionMethods: array} Use case: Monitor bot activity, identify trading strategies, analyze market making.',
+          description: 'Get bot activity analytics on Solana. Request: {} Response: {success: boolean, data: {totalBots?: number, activeBots?: number, volume24h?: number, topStrategies?: array}, timestamp: number} (Note: endpoint may be unavailable) Use case: Monitor bot activity, identify trading strategies, analyze market making.',
           inputSchema: {
             type: 'object',
             properties: {}
@@ -1390,7 +1421,7 @@ class OpenSVMServer {
         },
         {
           name: 'report_error',
-          description: 'Report client-side errors to OpenSVM. Request: {message: string, stack?: string, url?: string, userAgent?: string} Response: {reported: boolean, errorId?: string} Use case: Error tracking, bug reports, telemetry, improve API reliability.',
+          description: 'Report client-side errors to OpenSVM. Request: {message: string, stack?: string, url?: string, userAgent?: string} Response: {success: boolean, message: string, processingTime: number} Use case: Error tracking, bug reports, telemetry, improve API reliability.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1439,7 +1470,7 @@ class OpenSVMServer {
         },
         {
           name: 'get_program_info',
-          description: 'Get detailed program information and metadata. Request: {programId: string} Response: {programId: string, name?: string, category?: string, verified?: boolean, website?: string, github?: string, ...} Use case: Program due diligence, verify program authenticity, integration validation, security research.',
+          description: 'Get detailed program information and metadata. Request: {programId: string} Response: {success: boolean, data: {programId: string, name?: string, category?: string, verified?: boolean}, timestamp: number, cached?: boolean} Use case: Program due diligence, verify program authenticity, integration validation, security research.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -2913,10 +2944,26 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.mint, 'token mint'));
         }
 
+        // Validate unsupported parameters
+        if (args.limit !== undefined || args.days !== undefined) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `❌ The "chart" tool does not support "limit" or "days" parameters. Use timeFrom/timeTo for custom time ranges, or omit for default historical data based on interval.`
+          );
+        }
+
         const chartParams: any = {
           mint: args.mint,
           type: args.interval || '1H'  // Default to 1 hour interval
         };
+
+        // Add optional time range parameters
+        if (args.timeFrom !== undefined) {
+          chartParams.time_from = args.timeFrom;
+        }
+        if (args.timeTo !== undefined) {
+          chartParams.time_to = args.timeTo;
+        }
 
         // The /chart endpoint provides enhanced batching and ~10x more data than /market-data
         // Returns OHLCV data with technical indicators (MA7, MA25, MACD)
@@ -2936,23 +2983,30 @@ class OpenSVMServer {
           : items.filter((c: any) => c.v > 0);
 
         // Convert to array format with delta-encoded timestamps
+        // Calculate volume in same currency as prices: avg(high, low) * token_volume
         const firstTimestamp = filteredItems[0]?.unixTime || 0;
-        const candles = filteredItems.map((candle: any, index: number) => [
-          candle.o,
-          candle.h,
-          candle.l,
-          candle.c,
-          candle.v,
-          index === 0 ? 0 : candle.unixTime - filteredItems[index - 1].unixTime  // Delta from previous
-        ]);
+        const currency = items[0]?.currency || 'usd';
+        const candles = filteredItems.map((candle: any, index: number) => {
+          const avgPrice = (candle.h + candle.l) / 2;
+          const volumeInCurrency = avgPrice * candle.v;
+
+          return [
+            candle.o,
+            candle.h,
+            candle.l,
+            candle.c,
+            volumeInCurrency,  // Volume in same currency as prices (usd/sol/btc/etc)
+            index === 0 ? 0 : candle.unixTime - filteredItems[index - 1].unixTime  // Delta from previous
+          ];
+        });
 
         const optimizedData = {
           ...chartData,
           metadata: {
             address: chartData.mint,
             type: items[0]?.type || chartParams.type,
-            currency: items[0]?.currency || 'usd',
-            format: ['o', 'h', 'l', 'c', 'v', 't_delta'],
+            currency: currency,
+            format: ['o', 'h', 'l', 'c', 'v_' + currency, 't_delta'],
             t_start: firstTimestamp,
             filtered: !includeZeroVolume,
             original_count: items.length,
@@ -2975,13 +3029,24 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.mint, 'token mint'));
         }
 
+        // Check for OHLCV-related parameters and redirect to chart tool
+        if (args.interval || args.timeframe || args.period || args.limit || args.days ||
+            args.includeZeroVolume !== undefined || args.ohlcv || args.candles || args.candlestick ||
+            (args.endpoint && args.endpoint.toLowerCase() === 'ohlcv')) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            '❌ WRONG TOOL! For OHLCV/candlestick/price chart data, use the "chart" tool (NOT get_market_data). ' +
+            'get_market_data only supports endpoint="markets" (pools/liquidity) and endpoint="orderbook" (market depth). ' +
+            'Example: chart({mint: "' + args.mint + '", interval: "1d", days: 30}) to get daily candles for 30 days.'
+          );
+        }
+
         const marketDataParams: any = {
           endpoint: args.endpoint,
           mint: args.mint
         };
 
         // Add optional parameters
-        if (args.type) marketDataParams.type = args.type;
         if (args.poolAddress) marketDataParams.poolAddress = args.poolAddress;
         if (args.baseMint) marketDataParams.baseMint = args.baseMint;
         if (args.offset) marketDataParams.offset = args.offset;
