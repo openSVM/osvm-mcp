@@ -89,12 +89,19 @@ validate_response_fields() {
         return 0
     fi
 
-    # Check for expected fields (basic check)
+    # Check for expected fields (check top-level, .data, .result, and array elements)
     if [ -n "$expected_fields" ]; then
         local missing_fields=""
         for field in $expected_fields; do
+            # Check multiple possible locations:
+            # 1. Top level: .field
+            # 2. In data wrapper: .data.field
+            # 3. In result: .result.field
+            # 4. In array: .[0].field
             if ! echo "$content" | jq -e ".$field" >/dev/null 2>&1 && \
+               ! echo "$content" | jq -e ".data.$field" >/dev/null 2>&1 && \
                ! echo "$content" | jq -e ".result.$field" >/dev/null 2>&1 && \
+               ! echo "$content" | jq -e ".result.data.$field" >/dev/null 2>&1 && \
                ! echo "$content" | jq -e ".[0].$field" >/dev/null 2>&1; then
                 missing_fields="$missing_fields $field"
             fi
