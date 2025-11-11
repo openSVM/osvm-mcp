@@ -364,11 +364,16 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              signature: { type: 'string', description: 'Transaction signature' },
-              explanation: { type: 'string', description: 'Human-readable explanation of the transaction' },
-              language: { type: 'string', description: 'Language of explanation' }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  explanation: { type: 'string', description: 'Natural language explanation' }
+                }
+              },
+              timestamp: { type: 'number' }
             },
-            required: ['signature', 'explanation']
+            required: ['success', 'data', 'timestamp']
           }
         },
         // Account Tools
@@ -561,13 +566,9 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              address: { type: 'string', description: 'Account address' },
-              mint: { type: 'string', description: 'Token mint address' },
-              balance: { type: 'number', description: 'Token balance' },
-              transferCount: { type: 'number', description: 'Number of transfers' },
-              lastActivity: { type: 'number', description: 'Timestamp of last activity' }
-            },
-            required: ['address', 'mint']
+              solBalance: { type: 'number', description: 'SOL balance in lamports' },
+              transferCount: { type: 'number', description: 'Number of token transfers' }
+            }
           }
         },
         {
@@ -646,10 +647,22 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              currentSlot: { type: 'number', description: 'Current blockchain slot' },
-              avgBlockTime: { type: 'number', description: 'Average block time in milliseconds' },
-              tps: { type: 'number', description: 'Transactions per second' },
-              recentBlockTimes: { type: 'array', items: { type: 'number' }, description: 'Recent block times array' }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  currentSlot: { type: 'number', description: 'Current blockchain slot' },
+                  averageBlockTime: { type: 'number', description: 'Average block time in ms' },
+                  epochInfo: { type: 'object', description: 'Current epoch information' },
+                  recentTPS: { type: 'number', description: 'Recent transactions per second' },
+                  totalTransactions: { type: 'number', description: 'Total transaction count' },
+                  recentBlockMetrics: { type: 'object', description: 'Recent block performance' },
+                  validatorCount: { type: 'number', description: 'Active validator count' }
+                }
+              },
+              timestamp: { type: 'number' },
+              cached: { type: 'boolean' },
+              processingTime: { type: 'number' }
             }
           }
         },
@@ -716,23 +729,33 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              totalTvl: { type: 'number', description: 'Total value locked in DeFi protocols' },
-              totalVolume24h: { type: 'number', description: '24-hour trading volume across all DEXes' },
-              activeDexes: { type: 'number', description: 'Number of active DEX protocols' },
-              totalTransactions: { type: 'number', description: 'Total number of DeFi transactions' },
-              topProtocols: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', description: 'Protocol name' },
-                    tvl: { type: 'number', description: 'Total value locked' },
-                    volume24h: { type: 'number', description: '24-hour volume' },
-                    category: { type: 'string', description: 'Protocol category' }
-                  }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  totalTvl: { type: 'number', description: 'Total value locked in DeFi protocols' },
+                  totalVolume24h: { type: 'number', description: '24-hour trading volume across all DEXes' },
+                  activeDexes: { type: 'number', description: 'Number of active DEX protocols' },
+                  topProtocols: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string', description: 'Protocol name' },
+                        tvl: { type: 'number', description: 'Total value locked' },
+                        volume24h: { type: 'number', description: '24-hour volume' },
+                        category: { type: 'string', description: 'Protocol category' }
+                      }
+                    }
+                  },
+                  totalTransactions: { type: 'number', description: 'Total number of DeFi transactions' },
+                  healthStatus: { type: 'object', description: 'DeFi health indicators' },
+                  sectorBreakdown: { type: 'object', description: 'DeFi sector breakdown' }
                 }
-              }
-            }
+              },
+              timestamp: { type: 'number' }
+            },
+            required: ['success', 'data', 'timestamp']
           }
         },
         {
@@ -767,11 +790,20 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              riskScore: { type: 'number', description: 'Overall risk score (0-100)' },
-              liquidityDepth: { type: 'number', description: 'Aggregate liquidity depth' },
-              marketStability: { type: 'number', description: 'Market stability indicator' },
-              alerts: { type: 'array', items: { type: 'string' }, description: 'Health alerts and warnings' }
-            }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  health: { type: 'object', description: 'Health indicators including risk score, liquidity depth, market stability' },
+                  ecosystem: { type: 'object', description: 'Ecosystem metrics and statistics' },
+                  protocols: { type: 'array', description: 'Protocol-level health data' },
+                  alerts: { type: 'array', items: { type: 'string' }, description: 'Health alerts and warnings' },
+                  rankings: { type: 'array', description: 'Protocol rankings by various metrics' }
+                }
+              },
+              timestamp: { type: 'number' }
+            },
+            required: ['success', 'data', 'timestamp']
           }
         },
         {
@@ -784,12 +816,28 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              totalValidators: { type: 'number', description: 'Total number of validators' },
-              activeStake: { type: 'number', description: 'Total active stake in lamports' },
-              averageCommission: { type: 'number', description: 'Average validator commission percentage' },
-              decentralization: { type: 'object', description: 'Decentralization metrics' },
-              topValidators: { type: 'array', description: 'Top validators by stake' }
-            }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  networkStats: {
+                    type: 'object',
+                    description: 'Network-wide statistics',
+                    properties: {
+                      totalValidators: { type: 'number', description: 'Total number of validators' },
+                      activeStake: { type: 'number', description: 'Total active stake in lamports' },
+                      averageCommission: { type: 'number', description: 'Average validator commission percentage' }
+                    }
+                  },
+                  validators: { type: 'array', description: 'List of validators with details' },
+                  health: { type: 'object', description: 'Network health metrics' },
+                  decentralization: { type: 'object', description: 'Decentralization metrics including Nakamoto coefficient' },
+                  rpcNodes: { type: 'array', description: 'Available RPC nodes information' }
+                }
+              },
+              timestamp: { type: 'number' }
+            },
+            required: ['success', 'data', 'timestamp']
           }
         },
         {
@@ -1162,13 +1210,19 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              totalBots: { type: 'number', description: 'Total detected bots' },
-              activeBots: { type: 'number', description: 'Currently active bots' },
-              volume24h: { type: 'number', description: '24h bot trading volume' },
-              topStrategies: { type: 'array', items: { type: 'string' }, description: 'Most common bot strategies' },
-              avgProfitability: { type: 'number', description: 'Average bot profitability %' },
-              detectionMethods: { type: 'array', description: 'Bot detection methods used' }
-            }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  totalBots: { type: 'number', description: 'Total detected bots' },
+                  activeBots: { type: 'number', description: 'Currently active bots' },
+                  volume24h: { type: 'number', description: '24h bot trading volume' },
+                  topStrategies: { type: 'array', items: { type: 'string' }, description: 'Most common bot strategies' }
+                }
+              },
+              timestamp: { type: 'number' }
+            },
+            required: ['success', 'timestamp']
           }
         },
         // Token & NFT Tools
@@ -1435,10 +1489,11 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              reported: { type: 'boolean', description: 'Whether error was successfully reported' },
-              errorId: { type: 'string', description: 'Unique error report ID' }
+              success: { type: 'boolean', description: 'Whether error was successfully reported' },
+              message: { type: 'string', description: 'Response message' },
+              processingTime: { type: 'number', description: 'Time taken to process the request in ms' }
             },
-            required: ['reported']
+            required: ['success', 'message']
           }
         },
         // Program Registry Tools
@@ -1481,18 +1536,26 @@ class OpenSVMServer {
           outputSchema: {
             type: 'object',
             properties: {
-              programId: { type: 'string', description: 'Program address' },
-              name: { type: 'string', description: 'Program name' },
-              category: { type: 'string', description: 'Program category' },
-              verified: { type: 'boolean', description: 'Whether program is verified' },
-              description: { type: 'string', description: 'Program description' },
-              website: { type: 'string', description: 'Program website URL' },
-              github: { type: 'string', description: 'GitHub repository URL' },
-              audit: { type: 'string', description: 'Audit information' },
-              deployDate: { type: 'string', description: 'Program deployment date' },
-              upgradeAuthority: { type: 'string', description: 'Upgrade authority address' }
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  programId: { type: 'string', description: 'Program address' },
+                  name: { type: 'string', description: 'Program name' },
+                  category: { type: 'string', description: 'Program category' },
+                  verified: { type: 'boolean', description: 'Whether program is verified' },
+                  description: { type: 'string', description: 'Program description' },
+                  website: { type: 'string', description: 'Program website URL' },
+                  github: { type: 'string', description: 'GitHub repository URL' },
+                  audit: { type: 'string', description: 'Audit information' },
+                  deployDate: { type: 'string', description: 'Program deployment date' },
+                  upgradeAuthority: { type: 'string', description: 'Upgrade authority address' }
+                }
+              },
+              timestamp: { type: 'number' },
+              cached: { type: 'boolean' }
             },
-            required: ['programId']
+            required: ['success', 'data', 'timestamp']
           }
         },
         // Solana RPC Direct Methods (commonly used)
@@ -2274,93 +2337,6 @@ class OpenSVMServer {
           }
         },
         {
-          name: 'rpc_getEpochSchedule',
-          description: 'Get epoch schedule information. Response: {slotsPerEpoch?: number, leaderScheduleSlotOffset?: number, warmup?: boolean, firstNormalEpoch?: number, firstNormalSlot?: number}. Request: {} Use case: Calculate epoch boundaries, timing predictions.',
-          inputSchema: {
-            type: 'object',
-            properties: {}
-          },
-          outputSchema: {
-            type: 'object',
-            properties: {
-              slotsPerEpoch: { type: 'number', description: 'Slots per epoch' },
-              leaderScheduleSlotOffset: { type: 'number', description: 'Leader schedule slot offset' },
-              warmup: { type: 'boolean', description: 'Whether epochs start short and grow' },
-              firstNormalEpoch: { type: 'number', description: 'First normal-length epoch' },
-              firstNormalSlot: { type: 'number', description: 'First normal-length slot' }
-            }
-          }
-        },
-        {
-          name: 'rpc_getClusterNodes',
-          description: 'Get cluster node information. Request: {} Response: {result: [{pubkey, gossip, tpu, rpc, version}]} Use case: Network topology, node discovery, cluster health.',
-          inputSchema: {
-            type: 'object',
-            properties: {}
-          },
-          outputSchema: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                pubkey: { type: 'string', description: 'Node public key' },
-                gossip: { type: 'string', description: 'Gossip network address' },
-                tpu: { type: 'string', description: 'TPU network address' },
-                rpc: { type: 'string', description: 'RPC network address' },
-                version: { type: 'string', description: 'Software version' }
-              }
-            }
-          }
-        },
-        {
-          name: 'rpc_getSupply',
-          description: 'Get information about current supply. Returns NESTED: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}. Request: {commitment?: string} Response: {result: {context, value: {total, circulating, nonCirculating, nonCirculatingAccounts}}} Use case: Economic analysis, circulating supply tracking.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
-            }
-          },
-          outputSchema: {
-            type: 'object',
-            properties: {
-              context: {
-                type: 'object',
-                properties: {
-                  slot: { type: 'number', description: 'Slot number' }
-                }
-              },
-              value: {
-                type: 'object',
-                properties: {
-                  total: { type: 'number', description: 'Total supply in lamports' },
-                  circulating: { type: 'number', description: 'Circulating supply in lamports' },
-                  nonCirculating: { type: 'number', description: 'Non-circulating supply in lamports' },
-                  nonCirculatingAccounts: { type: 'array', items: { type: 'string' }, description: 'Non-circulating account addresses' }
-                }
-              }
-            },
-            required: ['context', 'value']
-          }
-        },
-        {
-          name: 'rpc_getVoteAccounts',
-          description: 'Get vote account status. Request: {commitment?: string} Response: {result: {current: array, delinquent: array}} Use case: Validator voting status, stake distribution.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
-            }
-          },
-          outputSchema: {
-            type: 'object',
-            properties: {
-              current: { type: 'array', description: 'Current active vote accounts' },
-              delinquent: { type: 'array', description: 'Delinquent vote accounts' }
-            }
-          }
-        },
-        {
           name: 'rpc_getTokenAccountsByDelegate',
           description: 'Get token accounts by delegate authority. Returns NESTED: {context, value: [{pubkey, account: {data: {parsed: {info: {...}}}}}]}. Access via: result.value[0].account.data.parsed.info. Request: {delegate: string, mint?: string, programId?: string, encoding?: string, commitment?: string} Response: {result: {context, value: [{pubkey, account}]}} Use case: Delegated account management, DeFi applications.',
           inputSchema: {
@@ -2505,20 +2481,6 @@ class OpenSVMServer {
           outputSchema: {
             type: 'number',
             description: 'Slot of the first available block in the ledger'
-          }
-        },
-        {
-          name: 'rpc_getBlockHeight',
-          description: 'Get current block height (different from slot). Request: {commitment?: string} Response: {result: number} - Current block height. Use case: Block confirmations, chain progress tracking.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              commitment: { type: 'string', enum: ['processed', 'confirmed', 'finalized'], description: 'Commitment level (default: finalized)' }
-            }
-          },
-          outputSchema: {
-            type: 'number',
-            description: 'Current block height (number of blocks produced)'
           }
         },
         // Utility Tools
