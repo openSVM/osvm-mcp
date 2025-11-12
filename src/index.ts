@@ -2816,7 +2816,7 @@ class OpenSVMServer {
         };
 
       case 'get_recent_blocks':
-        const recentBlocks = await this.client.get('/api/blocks/recent', {
+        const recentBlocks = await this.client.get('/api/blocks', {
           params: {
             limit: args.limit,
             before: args.before
