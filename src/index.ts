@@ -2585,6 +2585,17 @@ class OpenSVMServer {
           tokenChanges: txData.details?.tokenChanges,
           solChanges: txData.details?.solChanges,
           logs: txData.details?.logs,
+          // Map tokenTransfers with correct field names
+          tokenTransfers: txData.details?.tokenTransfers?.map((transfer: any) => ({
+            ...transfer,
+            // Map account/change fields to from/to for compatibility
+            from: transfer.account || transfer.from,
+            to: transfer.to || (transfer.change > 0 ? transfer.account : null),
+            amount: transfer.amount || Math.abs(transfer.change),
+            // Keep original fields as well
+            account: transfer.account,
+            change: transfer.change
+          })) || txData.tokenTransfers,
           // Remove nested details object
           details: undefined
         };
