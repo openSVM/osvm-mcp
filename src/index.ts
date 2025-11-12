@@ -2754,14 +2754,15 @@ class OpenSVMServer {
             limit = 1000;
           }
         }
-        const accountTxs = await this.client.get('/api/account-transactions', {
+        const accountTxs = await this.client.get(`/api/account-transactions/${args.address}`, {
           params: {
-            address: args.address,
             limit,
             before: args.before,
             type: args.type,
             startDate: args.startDate,
-            endDate: args.endDate
+            endDate: args.endDate,
+            classify: true,
+            includeInflow: true
           }
         });
         return {
