@@ -18,7 +18,7 @@ import axios, { AxiosInstance } from 'axios';
 import bs58 from 'bs58';
 
 // Environment configuration
-const BASE_URL = process.env.OPENSVM_BASE_URL || 'https://osvm.ai/api';
+const BASE_URL = process.env.OPENSVM_BASE_URL || 'https://opensvm.com';
 const API_KEY = process.env.OPENSVM_API_KEY;
 const JWT_TOKEN = process.env.OPENSVM_JWT_TOKEN;
 
