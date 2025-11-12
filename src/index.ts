@@ -2572,7 +2572,7 @@ class OpenSVMServer {
         if (!isValidTransactionSignature(args.signature)) {
           throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.signature));
         }
-        const txData = await this.client.get(`/transaction/${args.signature}`);
+        const txData = await this.client.get(`/api/transaction/${args.signature}`);
 
         // Flatten nested details object
         const flattenedTx = {
@@ -2639,7 +2639,7 @@ class OpenSVMServer {
         if (!isValidTransactionSignature(args.signature)) {
           throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.signature));
         }
-        const analysis = await this.client.get(`/transaction/${args.signature}/analysis`, {
+        const analysis = await this.client.get(`/api/transaction/${args.signature}/analysis`, {
           model: args.model
         });
         return {
@@ -2653,7 +2653,7 @@ class OpenSVMServer {
         if (!isValidTransactionSignature(args.signature)) {
           throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.signature));
         }
-        const explanation = await this.client.get(`/transaction/${args.signature}/explain`, {
+        const explanation = await this.client.get(`/api/transaction/${args.signature}/explain`, {
           language: args.language
         });
         return {
@@ -2669,7 +2669,9 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
-        const accountStats = await this.client.get(`/account-stats/${args.address}`);
+        const accountStats = await this.client.get('/api/account-stats', {
+          params: { address: args.address }
+        });
         return {
           content: [{
             type: 'text',
@@ -2681,7 +2683,7 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
-        const portfolio = await this.client.get(`/account-portfolio/${args.address}`);
+        const portfolio = await this.client.get(`/api/account-portfolio/${args.address}`);
 
         // Flatten nested data structure
         const flattenedPortfolio = {
@@ -2708,7 +2710,7 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
-        const portfolioData = await this.client.get(`/account-portfolio/${args.address}`);
+        const portfolioData = await this.client.get(`/api/account-portfolio/${args.address}`);
         // Return full portfolio data (same as get_account_portfolio for completeness)
         const balanceInfo = {
           address: args.address,
@@ -2741,12 +2743,15 @@ class OpenSVMServer {
             limit = 1000;
           }
         }
-        const accountTxs = await this.client.get(`/account-transactions/${args.address}`, {
-          limit,
-          before: args.before,
-          type: args.type,
-          startDate: args.startDate,
-          endDate: args.endDate
+        const accountTxs = await this.client.get('/api/account-transactions', {
+          params: {
+            address: args.address,
+            limit,
+            before: args.before,
+            type: args.type,
+            startDate: args.startDate,
+            endDate: args.endDate
+          }
         });
         return {
           content: [{
@@ -2759,7 +2764,12 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address) || !isValidSolanaAddress(args.mint)) {
           throw new McpError(ErrorCode.InvalidParams, getMultiAddressValidationError(args.address, args.mint));
         }
-        const tokenStats = await this.client.get(`/account-token-stats/${args.address}/${args.mint}`);
+        const tokenStats = await this.client.get('/api/account-token-stats', {
+          params: {
+            address: args.address,
+            mint: args.mint
+          }
+        });
         return {
           content: [{
             type: 'text',
@@ -2771,8 +2781,10 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
-        const accountType = await this.client.get('/check-account-type', {
-          address: args.address
+        const accountType = await this.client.get('/api/check-account-type', {
+          params: {
+            address: args.address
+          }
         });
 
         // Flatten nested details object
@@ -2793,7 +2805,9 @@ class OpenSVMServer {
 
       // Block Tools
       case 'get_block':
-        const blockData = await this.client.get(`/blocks/${args.slot}`);
+        const blockData = await this.client.get('/api/block', {
+          params: { slot: args.slot }
+        });
         return {
           content: [{
             type: 'text',
@@ -2802,9 +2816,11 @@ class OpenSVMServer {
         };
 
       case 'get_recent_blocks':
-        const recentBlocks = await this.client.get('/blocks', {
-          limit: args.limit,
-          before: args.before
+        const recentBlocks = await this.client.get('/api/blocks/recent', {
+          params: {
+            limit: args.limit,
+            before: args.before
+          }
         });
         return {
           content: [{
@@ -2816,7 +2832,7 @@ class OpenSVMServer {
       case 'get_block_stats':
         // Note: This endpoint currently returns an error from the API
         // Keeping the tool for future use when the API is fixed
-        const blockStats = await this.client.get('/blocks/stats');
+        const blockStats = await this.client.get('/api/blocks/stats');
         return {
           content: [{
             type: 'text',
@@ -2826,7 +2842,7 @@ class OpenSVMServer {
 
       // Search Tools
       case 'universal_search':
-        const searchResults = await this.client.get('/search', {
+        const searchResults = await this.client.get('/api/search', {
           q: args.query,
           type: args.type,
           start: args.start,
@@ -2858,7 +2874,7 @@ class OpenSVMServer {
 
       // Analytics Tools
       case 'get_defi_overview':
-        const defiOverview = await this.client.get('/analytics/overview');
+        const defiOverview = await this.client.get('/api/analytics/overview');
         return {
           content: [{
             type: 'text',
@@ -2867,7 +2883,7 @@ class OpenSVMServer {
         };
 
       case 'get_dex_analytics':
-        const dexAnalytics = await this.client.get('/analytics/dex', {
+        const dexAnalytics = await this.client.get('/api/analytics/dex', {
           dex: args.dex,
           timeframe: args.timeframe
         });
@@ -2879,7 +2895,7 @@ class OpenSVMServer {
         };
 
       case 'get_defi_health':
-        const defiHealth = await this.client.get('/analytics/defi-health');
+        const defiHealth = await this.client.get('/api/analytics/defi-health');
         return {
           content: [{
             type: 'text',
@@ -2888,7 +2904,7 @@ class OpenSVMServer {
         };
 
       case 'get_validator_analytics':
-        const validatorAnalytics = await this.client.get('/analytics/validators');
+        const validatorAnalytics = await this.client.get('/api/analytics/validators');
         return {
           content: [{
             type: 'text',
@@ -2929,7 +2945,7 @@ class OpenSVMServer {
 
         // The /chart endpoint provides enhanced batching and ~10x more data than /market-data
         // Returns OHLCV data with technical indicators (MA7, MA25, MACD)
-        const chartData = await this.client.get('/chart', chartParams);
+        const chartData = await this.client.get('/api/chart', chartParams);
 
         // Ultra-optimized response format:
         // 1. Array format instead of objects (saves ~40 bytes per candle)
@@ -3013,7 +3029,7 @@ class OpenSVMServer {
         if (args.baseMint) marketDataParams.baseMint = args.baseMint;
         if (args.offset) marketDataParams.offset = args.offset;
 
-        const marketData = await this.client.get('/market-data', marketDataParams);
+        const marketData = await this.client.get('/api/market-data', marketDataParams);
         return {
           content: [{
             type: 'text',
@@ -3022,7 +3038,7 @@ class OpenSVMServer {
         };
 
       case 'get_dex_profile':
-        const dexProfile = await this.client.get(`/dex/${args.name}`);
+        const dexProfile = await this.client.get(`/api/dex/${args.name}`);
         return {
           content: [{
             type: 'text',
@@ -3031,7 +3047,7 @@ class OpenSVMServer {
         };
 
       case 'get_trending_validators':
-        const trendingValidators = await this.client.get('/analytics/trending-validators', {
+        const trendingValidators = await this.client.get('/api/analytics/trending-validators', {
           params: args.metric ? { metric: args.metric } : {}
         });
         return {
@@ -3042,7 +3058,7 @@ class OpenSVMServer {
         };
 
       case 'get_cross_chain_analytics':
-        const crossChainAnalytics = await this.client.get('/analytics/cross-chain');
+        const crossChainAnalytics = await this.client.get('/api/analytics/cross-chain');
         return {
           content: [{
             type: 'text',
@@ -3051,7 +3067,7 @@ class OpenSVMServer {
         };
 
       case 'get_bot_analytics':
-        const botAnalytics = await this.client.get('/analytics/bots');
+        const botAnalytics = await this.client.get('/api/analytics/bots');
         return {
           content: [{
             type: 'text',
@@ -3065,7 +3081,7 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.address)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
         }
-        const tokenInfo = await this.client.get(`/token/${args.address}`);
+        const tokenInfo = await this.client.get(`/api/token/${args.address}`);
 
         // Flatten metadata to top level for better AI accessibility
         const flattenedTokenInfo = {
@@ -3098,7 +3114,7 @@ class OpenSVMServer {
         if (!Array.isArray(args.mints) || args.mints.length === 0) {
           throw new McpError(ErrorCode.InvalidParams, getArrayValidationError(args.mints, 'Mints', '"So11111111111111111111111111111111111111112", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"'));
         }
-        const tokenMetadata = await this.client.get('/token-metadata', {
+        const tokenMetadata = await this.client.get('/api/token-metadata', {
           mint: args.mints.join(',')
         });
 
@@ -3123,7 +3139,7 @@ class OpenSVMServer {
         };
 
       case 'get_nft_collections':
-        const nftCollections = await this.client.get('/nft-collections', {
+        const nftCollections = await this.client.get('/api/nft-collections', {
           limit: args.limit,
           sort: args.sort
         });
@@ -3161,7 +3177,7 @@ class OpenSVMServer {
         if (!isValidSolanaAddress(args.walletAddress)) {
           throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.walletAddress, 'wallet address'));
         }
-        const userHistory = await this.client.get(`/user-history/${args.walletAddress}`, {
+        const userHistory = await this.client.get(`/api/user-history/${args.walletAddress}`, {
           limit: args.limit
         });
         return {
