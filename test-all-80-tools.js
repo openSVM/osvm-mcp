@@ -178,7 +178,10 @@ async function testAllTools() {
 
         try {
           const startTime = Date.now();
-          const result = await client.callTool(tool.name, tool.args);
+          const result = await client.callTool({
+            name: tool.name,
+            arguments: tool.args
+          });
           const duration = Date.now() - startTime;
 
           if (result && result.content && result.content.length > 0) {
