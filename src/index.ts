@@ -553,6 +553,51 @@ class OpenSVMServer {
           }
         },
         {
+          name: 'get_account_transfers',
+          description: 'Get SOL/token transfer history for an account. Request: {address: string, limit?: number, beforeSignature?: string, transferType?: string, solanaOnly?: boolean} Response: OBJECT with {data: ARRAY, hasMore: boolean, total: number, nextPageSignature: string}. Access transfer array: response.data (NOT response directly). Each transfer has {signature, timestamp, mint, from, to, amount, decimals, type}. Use case: Track token movements, analyze trading history, monitor SOL/token inflows/outflows, pagination with nextPageSignature.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' },
+              limit: { type: 'number', description: 'Maximum number of transfers to return (default 10)', maximum: 1000, minimum: 1 },
+              beforeSignature: { type: 'string', description: 'Smart cursor for pagination - use oldest cached signature if not provided' },
+              offset: { type: 'number', description: 'Pagination offset', minimum: 0 },
+              transferType: { type: 'string', description: 'Filter by transfer direction: "in" (received) or "out" (sent)', enum: ['in', 'out'] },
+              solanaOnly: { type: 'boolean', description: 'Show only SOL transfers (exclude tokens) - default false' }
+            },
+            required: ['address']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              data: {
+                type: 'array',
+                description: 'Array of transfer objects',
+                items: {
+                  type: 'object',
+                  properties: {
+                    signature: { type: 'string', description: 'Transaction signature' },
+                    timestamp: { type: 'number', description: 'Transfer timestamp in milliseconds' },
+                    mint: { type: 'string', description: 'Token mint address' },
+                    tokenSymbol: { type: 'string', description: 'Token symbol if available' },
+                    from: { type: 'string', description: 'Source address' },
+                    to: { type: 'string', description: 'Destination address' },
+                    amount: { type: 'number', description: 'Transfer amount in token units' },
+                    decimals: { type: 'number', description: 'Token decimals' },
+                    type: { type: 'string', description: 'Transfer type (e.g., "in", "out")' }
+                  }
+                }
+              },
+              hasMore: { type: 'boolean', description: 'Whether more results are available' },
+              total: { type: 'number', description: 'Total number of transfers' },
+              originalTotal: { type: 'number', description: 'Original total before filtering' },
+              nextPageSignature: { type: 'string', description: 'Signature to use for next page (use as beforeSignature)' },
+              fromCache: { type: 'boolean', description: 'Whether response was served from cache' }
+            },
+            required: ['data']
+          }
+        },
+        {
           name: 'get_account_token_stats',
           description: 'Get specific token statistics for an account/mint pair. Request: {address: string, mint: string} Response: {solBalance: number, transferCount: number} Use case: Track specific token holdings, analyze token-specific activity, monitor airdrop claims.',
           inputSchema: {
@@ -2769,6 +2814,45 @@ class OpenSVMServer {
           content: [{
             type: 'text',
             text: JSON.stringify(accountTxs, null, 2)
+          }]
+        };
+
+      case 'get_account_transfers':
+        if (!isValidSolanaAddress(args.address)) {
+          throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.address));
+        }
+        // Validate limit
+        let transferLimit = args.limit;
+        if (transferLimit !== undefined) {
+          if (typeof transferLimit !== 'number' || transferLimit < 1) {
+            throw new McpError(ErrorCode.InvalidParams, getNumberValidationError(transferLimit, 'Limit', { min: 1 }));
+          }
+          if (transferLimit > 1000) {
+            console.warn(`Limit ${transferLimit} exceeds maximum of 1000, capping to 1000`);
+            transferLimit = 1000;
+          }
+        }
+        // Validate offset
+        if (args.offset !== undefined && (typeof args.offset !== 'number' || args.offset < 0)) {
+          throw new McpError(ErrorCode.InvalidParams, getNumberValidationError(args.offset, 'Offset', { min: 0 }));
+        }
+        // Validate beforeSignature if provided
+        if (args.beforeSignature && !isValidTransactionSignature(args.beforeSignature)) {
+          throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.beforeSignature));
+        }
+        const accountTransfers = await this.client.get(`/api/account-transfers/${args.address}`, {
+          params: {
+            limit: transferLimit,
+            offset: args.offset,
+            beforeSignature: args.beforeSignature,
+            transferType: args.transferType,
+            solanaOnly: args.solanaOnly
+          }
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(accountTransfers, null, 2)
           }]
         };
 
