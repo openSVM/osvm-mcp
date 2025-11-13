@@ -554,16 +554,19 @@ class OpenSVMServer {
         },
         {
           name: 'get_account_transfers',
-          description: 'Get SOL/token transfer history for an account. Request: {address: string, limit?: number, beforeSignature?: string, transferType?: string, solanaOnly?: boolean} Response: OBJECT with {data: ARRAY, hasMore: boolean, total: number, nextPageSignature: string}. Access transfer array: response.data (NOT response directly). Each transfer has {signature, timestamp, mint, from, to, amount, decimals, type}. Use case: Track token movements, analyze trading history, monitor SOL/token inflows/outflows, pagination with nextPageSignature.',
+          description: 'Get SOL/token transfer history for an account with bidirectional visibility, real token symbols, and DeFi attribution. Request: {address: string, limit?: number, transferType?: string} Response: OBJECT with {data: ARRAY, hasMore: boolean, total: number, nextPageSignature: string}. Access transfer array: response.data (NOT response directly). Each transfer has {txId, date, from, to, tokenSymbol, tokenAmount, transferType}. Use case: Track token movements, analyze trading history, monitor inflows/outflows, filter by tx type.',
           inputSchema: {
             type: 'object',
             properties: {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' },
-              limit: { type: 'number', description: 'Maximum number of transfers to return (default 10)', maximum: 1000, minimum: 1 },
-              beforeSignature: { type: 'string', description: 'Smart cursor for pagination - use oldest cached signature if not provided' },
-              offset: { type: 'number', description: 'Pagination offset', minimum: 0 },
-              transferType: { type: 'string', description: 'Filter by transfer direction: "in" (received) or "out" (sent)', enum: ['in', 'out'] },
-              solanaOnly: { type: 'boolean', description: 'Show only SOL transfers (exclude tokens) - default false' }
+              limit: { type: 'number', description: 'Maximum number of transfers to return (default 50)', maximum: 1000, minimum: 1 },
+              beforeSignature: { type: 'string', description: 'Pagination cursor - use nextPageSignature from previous response' },
+              offset: { type: 'number', description: 'Pagination offset (default 0)', minimum: 0 },
+              transferType: { type: 'string', description: 'Filter by transfer direction (default "ALL")', enum: ['IN', 'OUT', 'ALL'], default: 'ALL' },
+              solanaOnly: { type: 'boolean', description: 'Show only native SOL transfers - default false' },
+              txType: { type: 'string', description: 'Filter by transaction type (comma-separated): sol, spl, defi, nft, program, system, funding' },
+              mints: { type: 'string', description: 'Filter by specific token mint addresses (comma-separated)' },
+              bypassCache: { type: 'boolean', description: 'Fetch fresh data directly from RPC - default false' }
             },
             required: ['address']
           },
@@ -2846,7 +2849,10 @@ class OpenSVMServer {
             offset: args.offset,
             beforeSignature: args.beforeSignature,
             transferType: args.transferType,
-            solanaOnly: args.solanaOnly
+            solanaOnly: args.solanaOnly,
+            txType: args.txType,
+            mints: args.mints,
+            bypassCache: args.bypassCache
           }
         });
         return {
