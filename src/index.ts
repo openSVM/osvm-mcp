@@ -766,6 +766,133 @@ class OpenSVMServer {
             }
           }
         },
+        // AI Tools
+        {
+          name: 'ai_inference_call',
+          description: 'AI-powered question answering with blockchain data analysis capabilities. Supports blockchain data analysis, market insights, and general Solana knowledge. Request: {question: string, systemPrompt?: string, maxTokens?: number, ownPlan?: boolean} Response: AI analysis and answer. Use case: Natural language queries about blockchain data, market analysis, Solana ecosystem questions.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              question: {
+                type: 'string',
+                description: 'The question or query to ask the AI assistant'
+              },
+              systemPrompt: {
+                type: 'string',
+                description: 'Custom system prompt to control AI behavior. When provided, bypasses internal tools and uses only the LLM with your custom instructions.'
+              },
+              maxTokens: {
+                type: 'number',
+                description: 'Response length control (1-32000). Default: 32000',
+                minimum: 1,
+                maximum: 32000
+              },
+              ownPlan: {
+                type: 'boolean',
+                description: 'Returns execution plan in XML format instead of executing the query. Default: false'
+              },
+              _healthCheck: {
+                type: 'boolean',
+                description: 'Internal flag for health monitoring. Default: false'
+              }
+            },
+            required: ['question']
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              answer: { type: 'string', description: 'AI-generated answer to the question' },
+              plan: { type: 'string', description: 'Execution plan (if ownPlan=true)' },
+              sources: { type: 'array', description: 'Data sources used for the answer' }
+            }
+          }
+        },
+        // Wallet Connection & Mapping Tools
+        {
+          name: 'find_related_transactions',
+          description: 'Discover transactions that share common characteristics or participants to map wallet connections and transaction flows. Useful for: wallet relationship mapping, transaction chain analysis, identifying connected wallets, building transaction graphs.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              signatures: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Transaction signatures to find relationships for'
+              },
+              address: {
+                type: 'string',
+                description: 'Wallet address to find related transactions for'
+              },
+              includeTokenTransfers: {
+                type: 'boolean',
+                description: 'Include token transfer relationships (default: true)'
+              },
+              maxDepth: {
+                type: 'number',
+                description: 'Maximum depth for relationship discovery (default: 2)'
+              }
+            }
+          },
+          outputSchema: {
+            type: 'object',
+            properties: {
+              relationships: {
+                type: 'array',
+                description: 'Array of related transaction relationships'
+              },
+              nodes: {
+                type: 'array',
+                description: 'Wallet addresses involved in the relationship graph'
+              },
+              edges: {
+                type: 'array',
+                description: 'Transaction connections between wallets'
+              }
+            }
+          }
+        },
+        {
+          name: 'holders_by_interaction',
+          description: 'Retrieve holders ranked by interaction metrics with a program. Identifies wallet clusters and interaction patterns. Request: {program: string (required), period?: string, limit?: number, offset?: number, minInteractions?: number} Use case: Finding connected wallets through program interaction, wallet clustering, community analysis.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              program: {
+                type: 'string',
+                description: 'Program address to analyze holder interactions for (required)'
+              },
+              period: {
+                type: 'string',
+                description: 'Time period filter (e.g., "24h", "7d", "30d")'
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum number of holders to return (default: 100)'
+              },
+              offset: {
+                type: 'number',
+                description: 'Pagination offset for results (default: 0)'
+              },
+              minInteractions: {
+                type: 'number',
+                description: 'Minimum interaction count threshold'
+              }
+            },
+            required: ['program']
+          },
+          outputSchema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                holder: { type: 'string', description: 'Wallet address' },
+                interactions: { type: 'number', description: 'Interaction count' },
+                lastInteraction: { type: 'string', description: 'Timestamp of last interaction' },
+                firstInteraction: { type: 'string', description: 'Timestamp of first interaction' }
+              }
+            }
+          }
+        },
         // Analytics Tools
         {
           name: 'get_defi_overview',
@@ -2844,16 +2971,14 @@ class OpenSVMServer {
           throw new McpError(ErrorCode.InvalidParams, getSignatureValidationError(args.beforeSignature));
         }
         const accountTransfers = await this.client.get(`/api/account-transfers/${args.address}`, {
-          params: {
-            limit: transferLimit,
-            offset: args.offset,
-            beforeSignature: args.beforeSignature,
-            transferType: args.transferType,
-            solanaOnly: args.solanaOnly,
-            txType: args.txType,
-            mints: args.mints,
-            bypassCache: args.bypassCache
-          }
+          limit: transferLimit,
+          offset: args.offset,
+          beforeSignature: args.beforeSignature,
+          transferType: args.transferType,
+          solanaOnly: args.solanaOnly,
+          txType: args.txType,
+          mints: args.mints,
+          bypassCache: args.bypassCache
         });
         return {
           content: [{
@@ -2971,6 +3096,55 @@ class OpenSVMServer {
           content: [{
             type: 'text',
             text: JSON.stringify(accountSearch, null, 2)
+          }]
+        };
+
+      // AI Tools
+      case 'ai_inference_call':
+        const aiAnswer = await this.client.post('/api/getAnswer', {
+          question: args.question,
+          ...(args.systemPrompt && { systemPrompt: args.systemPrompt }),
+          ...(args.maxTokens && { maxTokens: args.maxTokens }),
+          ...(args.ownPlan !== undefined && { ownPlan: args.ownPlan }),
+          ...(args._healthCheck !== undefined && { _healthCheck: args._healthCheck })
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(aiAnswer, null, 2)
+          }]
+        };
+
+      // Wallet Connection & Mapping Tools
+      case 'find_related_transactions':
+        const relatedTxData = await this.client.post('/api/find-related-transactions', {
+          ...(args.signatures && { signatures: args.signatures }),
+          ...(args.address && { address: args.address }),
+          ...(args.includeTokenTransfers !== undefined && { includeTokenTransfers: args.includeTokenTransfers }),
+          ...(args.maxDepth !== undefined && { maxDepth: args.maxDepth })
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(relatedTxData, null, 2)
+          }]
+        };
+
+      case 'holders_by_interaction':
+        if (!isValidSolanaAddress(args.program)) {
+          throw new McpError(ErrorCode.InvalidParams, getAddressValidationError(args.program, 'program'));
+        }
+        const holdersByInteraction = await this.client.get('/api/holdersByInteraction', {
+          program: args.program,
+          period: args.period,
+          limit: args.limit,
+          offset: args.offset,
+          minInteractions: args.minInteractions
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(holdersByInteraction, null, 2)
           }]
         };
 
