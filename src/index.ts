@@ -36,7 +36,7 @@ class OpenSVMClient {
   constructor() {
     this.client = axios.create({
       baseURL: BASE_URL,
-      timeout: 30000,
+      timeout: 60000, // Increased from 30s to 60s for slow blockchain queries
       headers: {
         'Content-Type': 'application/json',
         ...(API_KEY && { 'X-API-Key': API_KEY }),
@@ -3032,9 +3032,8 @@ class OpenSVMServer {
 
       // Block Tools
       case 'get_block':
-        const blockData = await this.client.get('/api/block', {
-          params: { slot: args.slot }
-        });
+        // FIXED: Use path parameter instead of query parameter
+        const blockData = await this.client.get(`/api/blocks/${args.slot}`);
         return {
           content: [{
             type: 'text',
@@ -3044,10 +3043,8 @@ class OpenSVMServer {
 
       case 'get_recent_blocks':
         const recentBlocks = await this.client.get('/api/blocks', {
-          params: {
-            limit: args.limit,
-            before: args.before
-          }
+          limit: args.limit || 5, // Default to 5 to prevent timeouts
+          before: args.before
         });
         return {
           content: [{
