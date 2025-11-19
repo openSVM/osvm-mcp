@@ -36,7 +36,7 @@ class OpenSVMClient {
   constructor() {
     this.client = axios.create({
       baseURL: BASE_URL,
-      timeout: 60000, // Increased from 30s to 60s for slow blockchain queries
+      timeout: 120000, // Increased to 120s for AI inference and slow blockchain queries
       headers: {
         'Content-Type': 'application/json',
         ...(API_KEY && { 'X-API-Key': API_KEY }),

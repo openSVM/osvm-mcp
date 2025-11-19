@@ -61,7 +61,7 @@ this.client = axios.create({
 ```typescript
 this.client = axios.create({
   baseURL: BASE_URL,
-  timeout: 60000,  // CHANGE: 30s -> 60s
+  timeout: 120000,  // CHANGE: 30s -> 120s (for AI inference)
   headers: {
     'Content-Type': 'application/json',
     ...(API_KEY && { 'X-API-Key': API_KEY }),
