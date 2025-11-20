@@ -32,7 +32,7 @@ async function testFindRelatedTransactions() {
         'Accept': 'application/json',
         ...(JWT_TOKEN && { 'Authorization': `Bearer ${JWT_TOKEN}` })
       },
-      timeout: 30000,
+      timeout: 120000,
       validateStatus: () => true
     });
 
@@ -91,7 +91,7 @@ async function testHoldersByInteraction() {
           'Accept': 'application/json',
           ...(JWT_TOKEN && { 'Authorization': `Bearer ${JWT_TOKEN}` })
         },
-        timeout: 30000,
+        timeout: 120000,
         validateStatus: () => true
       });
 

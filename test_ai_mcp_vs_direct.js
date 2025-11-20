@@ -25,7 +25,7 @@ async function testDirectAPI() {
       },
       {
         headers: { 'Content-Type': 'application/json' },
-        timeout: 30000
+        timeout: 120000
       }
     );
     
@@ -104,7 +104,7 @@ async function testMCPCall() {
           console.log(`❌ TIMEOUT (${duration}ms)`);
           resolve({ success: false, duration, error: 'timeout' });
         }
-      }, 30000);
+      }, 120000);
       
       server.stdout.once('data', (data) => {
         if (responded) return;

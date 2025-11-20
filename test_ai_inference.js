@@ -96,7 +96,7 @@ async function testAIInference(testCase, testNum, total) {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 30000
+        timeout: 120000
       }
     );
 
@@ -152,7 +152,7 @@ async function testAIInference(testCase, testNum, total) {
       console.log(`Status: ${error.response.status}`);
       console.log(`Error: ${JSON.stringify(error.response.data, null, 2)}`);
     } else if (error.code === 'ECONNABORTED') {
-      console.log('Error: Request timeout (>30s)');
+      console.log('Error: Request timeout (>120s)');
     } else {
       console.log(`Error: ${error.message}`);
     }

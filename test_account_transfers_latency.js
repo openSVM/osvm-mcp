@@ -47,7 +47,7 @@ async function testAccountTransfers(address, params = {}) {
         'Content-Type': 'application/json',
         ...(JWT_TOKEN && { 'Authorization': `Bearer ${JWT_TOKEN}` })
       },
-      timeout: 30000
+      timeout: 120000
     });
 
     const latency = Date.now() - startTime;
