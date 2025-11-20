@@ -2778,7 +2778,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedTx, null, 2)
+            text: JSON.stringify(flattenedTx)
           }]
         };
 
@@ -2817,7 +2817,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedBatch, null, 2)
+            text: JSON.stringify(flattenedBatch)
           }]
         };
 
@@ -2831,7 +2831,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(analysis, null, 2)
+            text: JSON.stringify(analysis)
           }]
         };
 
@@ -2845,7 +2845,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(explanation, null, 2)
+            text: JSON.stringify(explanation)
           }]
         };
 
@@ -2861,7 +2861,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountStats, null, 2)
+            text: JSON.stringify(accountStats)
           }]
         };
 
@@ -2887,7 +2887,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedPortfolio, null, 2)
+            text: JSON.stringify(flattenedPortfolio)
           }]
         };
 
@@ -2910,7 +2910,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(balanceInfo, null, 2)
+            text: JSON.stringify(balanceInfo)
           }]
         };
 
@@ -2943,7 +2943,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountTxs, null, 2)
+            text: JSON.stringify(accountTxs)
           }]
         };
 
@@ -2983,7 +2983,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountTransfers, null, 2)
+            text: JSON.stringify(accountTransfers)
           }]
         };
 
@@ -3000,7 +3000,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(tokenStats, null, 2)
+            text: JSON.stringify(tokenStats)
           }]
         };
 
@@ -3026,7 +3026,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedAccountType, null, 2)
+            text: JSON.stringify(flattenedAccountType)
           }]
         };
 
@@ -3037,7 +3037,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(blockData, null, 2)
+            text: JSON.stringify(blockData)
           }]
         };
 
@@ -3049,7 +3049,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(recentBlocks, null, 2)
+            text: JSON.stringify(recentBlocks)
           }]
         };
 
@@ -3060,7 +3060,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(blockStats, null, 2)
+            text: JSON.stringify(blockStats)
           }]
         };
 
@@ -3078,7 +3078,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(searchResults, null, 2)
+            text: JSON.stringify(searchResults)
           }]
         };
 
@@ -3092,7 +3092,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(accountSearch, null, 2)
+            text: JSON.stringify(accountSearch)
           }]
         };
 
@@ -3108,7 +3108,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(aiAnswer, null, 2)
+            text: JSON.stringify(aiAnswer)
           }]
         };
 
@@ -3123,7 +3123,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(relatedTxData, null, 2)
+            text: JSON.stringify(relatedTxData)
           }]
         };
 
@@ -3141,7 +3141,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(holdersByInteraction, null, 2)
+            text: JSON.stringify(holdersByInteraction)
           }]
         };
 
@@ -3151,7 +3151,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(defiOverview, null, 2)
+            text: JSON.stringify(defiOverview)
           }]
         };
 
@@ -3163,7 +3163,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(dexAnalytics, null, 2)
+            text: JSON.stringify(dexAnalytics)
           }]
         };
 
@@ -3172,7 +3172,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(defiHealth, null, 2)
+            text: JSON.stringify(defiHealth)
           }]
         };
 
@@ -3181,7 +3181,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(validatorAnalytics, null, 2)
+            text: JSON.stringify(validatorAnalytics)
           }]
         };
 
@@ -3306,7 +3306,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(marketData, null, 2)
+            text: JSON.stringify(marketData)
           }]
         };
 
@@ -3315,7 +3315,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(dexProfile, null, 2)
+            text: JSON.stringify(dexProfile)
           }]
         };
 
@@ -3326,7 +3326,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(trendingValidators, null, 2)
+            text: JSON.stringify(trendingValidators)
           }]
         };
 
@@ -3335,7 +3335,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(crossChainAnalytics, null, 2)
+            text: JSON.stringify(crossChainAnalytics)
           }]
         };
 
@@ -3344,7 +3344,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(botAnalytics, null, 2)
+            text: JSON.stringify(botAnalytics)
           }]
         };
 
@@ -3371,7 +3371,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedTokenInfo, null, 2)
+            text: JSON.stringify(flattenedTokenInfo)
           }]
         };
 
@@ -3407,7 +3407,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(flattenedMetadata, null, 2)
+            text: JSON.stringify(flattenedMetadata)
           }]
         };
 
@@ -3419,7 +3419,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(nftCollections, null, 2)
+            text: JSON.stringify(nftCollections)
           }]
         };
 
@@ -3428,7 +3428,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(trendingNFTs, null, 2)
+            text: JSON.stringify(trendingNFTs)
           }]
         };
 
@@ -3456,7 +3456,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(userHistory, null, 2)
+            text: JSON.stringify(userHistory)
           }]
         };
 
@@ -3466,7 +3466,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(balance, null, 2)
+            text: JSON.stringify(balance)
           }]
         };
 
@@ -3475,7 +3475,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(usage, null, 2)
+            text: JSON.stringify(usage)
           }]
         };
 
@@ -3503,7 +3503,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(result, null, 2)
+            text: JSON.stringify(result)
           }]
         };
 
@@ -3513,7 +3513,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(metrics, null, 2)
+            text: JSON.stringify(metrics)
           }]
         };
 
@@ -3529,7 +3529,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(errorReport, null, 2)
+            text: JSON.stringify(errorReport)
           }]
         };
 
@@ -3542,7 +3542,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(programs, null, 2)
+            text: JSON.stringify(programs)
           }]
         };
 
@@ -3554,7 +3554,7 @@ class OpenSVMServer {
         return {
           content: [{
             type: 'text',
-            text: JSON.stringify(programInfo, null, 2)
+            text: JSON.stringify(programInfo)
           }]
         };
 
