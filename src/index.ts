@@ -2959,10 +2959,6 @@ class OpenSVMServer {
           if (typeof transferLimit !== 'number' || transferLimit < 1) {
             throw new McpError(ErrorCode.InvalidParams, getNumberValidationError(transferLimit, 'Limit', { min: 1 }));
           }
-          if (transferLimit > 1000) {
-            console.warn(`Limit ${transferLimit} exceeds maximum of 1000, capping to 1000`);
-            transferLimit = 1000;
-          }
         }
         // Validate offset
         if (args.offset !== undefined && (typeof args.offset !== 'number' || args.offset < 0)) {
