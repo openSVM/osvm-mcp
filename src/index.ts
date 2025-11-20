@@ -560,7 +560,7 @@ class OpenSVMServer {
             type: 'object',
             properties: {
               address: { type: 'string', description: 'Solana account address (base58, 32-44 chars)' },
-              limit: { type: 'number', description: 'Maximum number of transfers to return (default 50)', maximum: 1000, minimum: 1 },
+              limit: { type: 'number', description: 'Maximum number of transfers to return (default 50, API caps at 1000)', maximum: 5000, minimum: 1 },
               beforeSignature: { type: 'string', description: 'Pagination cursor - use nextPageSignature from previous response' },
               offset: { type: 'number', description: 'Pagination offset (default 0)', minimum: 0 },
               transferType: { type: 'string', description: 'Filter by transfer direction (default "ALL")', enum: ['IN', 'OUT', 'ALL'], default: 'ALL' },
