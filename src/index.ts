@@ -3001,7 +3001,6 @@ class OpenSVMServer {
         }
 
         const batchLimit = args.limit || 50;
-        console.error(`📦 Batch request: ${args.addresses.length} wallets, ${batchLimit} transfers each`);
 
         // Fetch all wallets in parallel
         const batchResults = await Promise.allSettled(
@@ -3013,7 +3012,6 @@ class OpenSVMServer {
               });
               return { address, result };
             } catch (error: any) {
-              console.error(`   ❌ ${address}: ${error.message}`);
               return { address, error: error.message };
             }
           })
@@ -3038,8 +3036,6 @@ class OpenSVMServer {
             errorCount++;
           }
         }
-
-        console.error(`   ✅ ${successCount} success, ❌ ${errorCount} errors`);
 
         // Optional compression
         if (args.compress === true) {
