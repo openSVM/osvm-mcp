@@ -1,0 +1,202 @@
+==========================================
+OpenSVM MCP Server - Comprehensive Tests
+Version 2.0.0 - 174 Tools
+==========================================
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhase 1: Trading Terminal & OpenSVM Credits (15 tools)[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Trading Terminal Tools:
+  Testing trading_get_markets: Trending markets... [1;33mAUTH[0m
+  Testing trading_get_markets: Top markets... [1;33mAUTH[0m
+  Testing trading_get_markets: New markets... [1;33mAUTH[0m
+  Testing trading_get_pools: USDC pools... [0;32mPASS[0m
+  Testing trading_get_pools: SOL Raydium pools... [0;32mPASS[0m
+  Testing trading_get_market_data: USDC market data... [1;33mAUTH[0m
+  Testing trading_get_market_data: SOL market data... [1;33mAUTH[0m
+  Testing trading_get_trades: SOL trades... [0;32mPASS[0m
+  Testing trading_get_positions: User positions... [0;32mPASS[0m
+  Testing trading_create_position: Create position... [0;32mPASS[0m
+  Testing trading_close_position: Close position... [0;32mPASS[0m
+  Testing trading_execute_trade: Execute trade... [0;32mPASS[0m
+  Testing trading_chat: Trading chat... [0;32mPASS[0m
+
+OpenSVM Credits Tools:
+  Testing opensvm_list_keys: List API keys... [1;33mAUTH[0m
+  Testing opensvm_create_key: Create API key... [1;33mAUTH[0m
+  Testing opensvm_get_key_stats: Get key stats... [1;33mAUTH[0m
+  Testing opensvm_get_usage: Get usage... [1;33mAUTH[0m
+  Testing opensvm_get_balance: Get balance... [1;33mAUTH[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhase 2: User Engagement & Social (19 tools)[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Social Interaction Tools:
+  Testing user_get_followers: Get followers... [0;32mPASS[0m
+  Testing user_get_following: Get following... [0;32mPASS[0m
+  Testing user_follow: Follow user... [1;33mAUTH[0m
+  Testing user_unfollow: Unfollow user... [1;33mAUTH[0m
+  Testing user_like_profile: Like profile... [1;33mAUTH[0m
+  Testing user_unlike_profile: Unlike profile... [1;33mAUTH[0m
+  Testing user_like_event: Like event... [1;33mAUTH[0m
+  Testing user_unlike_event: Unlike event... [1;33mAUTH[0m
+  Testing user_track_view: Track view... [0;32mPASS[0m
+
+Profile Management Tools:
+  Testing user_get_profile: Get profile... [0;32mPASS[0m
+  Testing user_update_profile: Update profile... [0;32mPASS[0m
+  Testing user_sync_profile_stats: Sync profile stats... [0;32mPASS[0m
+  Testing user_get_tab_preference: Get tab preference... [0;32mPASS[0m
+  Testing user_set_tab_preference: Set tab preference... [0;32mPASS[0m
+  Testing user_sync_history: Sync history... [0;32mPASS[0m
+  Testing user_repair_history: Repair history... [0;32mPASS[0m
+
+Feed & Activity Tools:
+  Testing user_get_feed: Get feed... [0;32mPASS[0m
+  Testing user_get_history: Get history... [1;33mAUTH[0m
+  Testing user_delete_history: Delete history... [1;33mAUTH[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhases 3-5: Complete Coverage (55 tools)[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Enhanced Token Analytics:
+  Testing token_get_holders: USDC holders... [0;32mPASS[0m
+  Testing token_get_holders: SOL holders... [0;32mPASS[0m
+  Testing token_get_top_traders: USDC top traders... [0;32mPASS[0m
+  Testing token_get_top_traders: SOL top traders... [0;32mPASS[0m
+  Testing holders_by_program_interaction: Holders by program... [0;32mPASS[0m
+
+Enhanced Transaction Analysis:
+  Testing transaction_get_related: Related transactions... [0;32mPASS[0m
+  Testing transaction_get_metrics: Transaction metrics... [0;32mPASS[0m
+  Testing transaction_get_failure_analysis: Failure analysis... [0;32mPASS[0m
+  Testing filter_transactions: Filter all transactions... [0;32mPASS[0m
+  Testing filter_transactions: Filter swap transactions... [0;32mPASS[0m
+  Testing filter_transactions: Filter transfer transactions... [0;32mPASS[0m
+  Testing wallet_path_finding: Wallet path finding... [0;32mPASS[0m
+
+Launchpad Integration:
+  Testing launchpad_list_sales: Active sales... [0;32mPASS[0m
+  Testing launchpad_list_sales: Completed sales... [0;32mPASS[0m
+  Testing launchpad_get_sale: Get sale details... [0;32mPASS[0m
+  Testing launchpad_contribute: Contribute to sale... [0;32mPASS[0m
+  Testing launchpad_get_kol: Get KOL info... [0;32mPASS[0m
+  Testing launchpad_apply_kol: Apply as KOL... [0;32mPASS[0m
+  Testing launchpad_claim_rewards: Claim KOL rewards... [0;32mPASS[0m
+  Testing launchpad_get_referral_link: Get referral link... [0;32mPASS[0m
+
+Share & Referral System:
+  Testing share_generate: Generate share link... [0;32mPASS[0m
+  Testing share_get_data: Get share data... [0;32mPASS[0m
+  Testing share_track_click: Track share click... [0;32mPASS[0m
+  Testing referral_get_balance: Get referral balance... [0;32mPASS[0m
+  Testing referral_claim: Claim referral rewards... [1;33mAUTH[0m
+
+Additional Analytics:
+  Testing analytics_get_aggregators: Aggregator analytics... [0;32mPASS[0m
+  Testing analytics_get_bots: Bot analytics... [0;32mPASS[0m
+  Testing analytics_get_cross_chain: Cross-chain analytics... [0;32mPASS[0m
+  Testing analytics_get_defai: DeFi analytics... [0;32mPASS[0m
+  Testing analytics_get_infofi: InfoFi analytics... [0;32mPASS[0m
+  Testing analytics_get_launchpads: Launchpad analytics... [0;32mPASS[0m
+  Testing analytics_get_marketplaces: Marketplace analytics... [1;33mAUTH[0m
+  Testing analytics_get_socialfi: SocialFi analytics... [0;32mPASS[0m
+  Testing analytics_trending_validators: Trending validators... [0;31mFAIL[0m
+  Testing analytics_user_interactions: User interactions... [0;32mPASS[0m
+
+Search & Discovery:
+  Testing search_filtered: Search Solana... [0;32mPASS[0m
+  Testing search_filtered: Search USDC... [0;32mPASS[0m
+  Testing search_filtered: Search tokens... [0;32mPASS[0m
+  Testing search_get_suggestions: Suggestions for 'sol'... [0;32mPASS[0m
+  Testing search_get_suggestions: Suggestions for 'usdc'... [0;32mPASS[0m
+  Testing search_get_empty_state: Empty state suggestions... [0;32mPASS[0m
+  Testing nft_get_trending: Trending NFTs... [0;32mPASS[0m
+  Testing nft_get_new: New NFTs... [0;32mPASS[0m
+
+Streaming & Real-time (non-SSE tests):
+  Testing stream_subscribe_alerts: Subscribe alerts... [0;32mPASS[0m
+  Testing stream_subscribe_feed: Subscribe feed... [0;32mPASS[0m
+  [0;36m⏭[0m  stream_blocks: Stream blocks (SKIPPED)
+  [0;36m⏭[0m  stream_transactions: Stream transactions (SKIPPED)
+
+Monitoring & System Health:
+  Testing monitoring_get_requests: Request metrics... [0;32mPASS[0m
+  Testing monitoring_get_api_metrics: API metrics... [0;32mPASS[0m
+  Testing error_tracking_list: Error tracking... [0;32mPASS[0m
+
+Miscellaneous Critical Endpoints:
+  Testing chat_global: Global chat... [0;32mPASS[0m
+  Testing ai_get_similar_questions: Similar questions... [0;32mPASS[0m
+  Testing check_token: Check USDC token... [0;32mPASS[0m
+  Testing check_token: Check SOL token... [0;32mPASS[0m
+  Testing instruction_lookup: Instruction lookup... [0;32mPASS[0m
+  Testing program_discovery: Discover token programs... [0;32mPASS[0m
+  Testing program_discovery: Discover swap programs... [0;32mPASS[0m
+  Testing get_trades: Get trades... [0;32mPASS[0m
+  Testing get_slots: Get slots... [0;32mPASS[0m
+  Testing get_validator_info: Validator info... [0;32mPASS[0m
+  Testing get_config: Get config... [1;33mAUTH[0m
+  Testing get_metrics: Get metrics... [1;33mAUTH[0m
+  Testing get_usage_stats: Get usage stats... [1;33mAUTH[0m
+  Testing get_version: Get version... [0;32mPASS[0m
+  Testing check_anthropic_health: Check Anthropic health... [0;32mPASS[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mExisting Tools - Sample Tests (20 tools)[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Transaction Tools:
+  Testing transaction_get: Get transaction... [0;32mPASS[0m
+  Testing transaction_analyze: Analyze transaction... [0;32mPASS[0m
+  Testing transaction_explain: Explain transaction... [0;32mPASS[0m
+
+Account Tools:
+  Testing account_get_info: Get account info... [0;32mPASS[0m
+  Testing account_get_transactions: Get account transactions... [0;32mPASS[0m
+  Testing account_get_portfolio: Get portfolio... [0;32mPASS[0m
+  Testing account_get_transfers: Get transfers... [0;32mPASS[0m
+
+Token Tools:
+  Testing token_get_info: Get token info... [0;32mPASS[0m
+  Testing token_get_metadata: Get token metadata... [0;32mPASS[0m
+
+NFT Tools:
+  Testing nft_get_collections: Get NFT collections... [0;32mPASS[0m
+
+Analytics Tools:
+  Testing analytics_get_overview: Analytics overview... [0;32mPASS[0m
+  Testing analytics_get_dex: DEX analytics... [0;32mPASS[0m
+  Testing analytics_get_defi_health: DeFi health... [0;32mPASS[0m
+  Testing analytics_get_validators: Validator analytics... [0;32mPASS[0m
+
+Block Tools:
+  Testing block_get_info: Get block info... [0;32mPASS[0m
+  Testing blocks_get_recent: Get recent blocks... [0;32mPASS[0m
+
+Alert Tools:
+  Testing alerts_get: Get alerts... [0;32mPASS[0m
+
+Search Tools:
+  Testing search: Basic search... [0;32mPASS[0m
+  Testing search_accounts: Search accounts... [1;33mAUTH[0m
+
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mTest Results Summary[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+Total Tests:     [0;36m121[0m
+Passed:          [0;32m94[0m
+Failed:          [0;31m1[0m
+Auth Required:   [1;33m24[0m
+Skipped:         [0;36m2[0m
+
+Pass Rate (testable): [0;32m98%[0m (94/95)
+Coverage:        [0;36m68%[0m (119/174 tools tested)
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Tool Count Verification:
+Total tools available: [0;32m174[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[1;33m⚠️  Some tests failed[0m
