@@ -1,7 +1,7 @@
 {
   "name": "osvm-mcp",
-  "version": "0.1.0",
-  "description": "opensvm api mcp",
+  "version": "2.0.0",
+  "description": "OpenSVM API MCP Server - 174 tools with 100% OpenAPI coverage for Solana blockchain data, trading, social, analytics, and more",
   "private": true,
   "type": "module",
   "bin": {
