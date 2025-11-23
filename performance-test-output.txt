@@ -1,0 +1,148 @@
+==========================================
+OpenSVM MCP Server - Performance Tests
+Version 2.0.0 - Advanced Metrics
+==========================================
+
+Metrics Collected:
+  • Latency (response time)
+  • Schema Validation (MCP protocol)
+  • Response Size (bytes)
+  • Success/Failure rate
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhase 1: Trading Terminal & OpenSVM Credits[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+trading_get_pools                        [0;36m   819ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+trading_get_pools                        [0;36m   518ms[0m [0;35m    142B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+trading_get_trades                       [0;36m   678ms[0m [0;35m    16KB[0m Schema:\033[0;32m✓\033[0m Success:\033[1;33m⚠\033[0m
+trading_get_positions                    [0;36m   543ms[0m [0;35m    202B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+trading_chat                             [1;33m  2025ms[0m [0;35m   1016B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+opensvm_list_keys                        [0;36m   565ms[0m [0;35m    137B[0m Schema:\033[0;32m✓\033[0m Success:\033[1;33m⚠\033[0m
+opensvm_get_usage                        [0;36m   563ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[1;33m⚠\033[0m
+opensvm_get_balance                      [0;36m   558ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[1;33m⚠\033[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhase 2: User Engagement & Social[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+user_get_followers                       [0;36m   560ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_get_following                       [1;33m  1205ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_get_profile                         [0;36m   731ms[0m [0;35m    415B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_update_profile                      [0;32m   101ms[0m [0;35m    127B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_sync_profile_stats                  [0;36m   516ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_get_feed                            [0;36m   861ms[0m [0;35m     9KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_get_tab_preference                  [0;36m   550ms[0m [0;35m    129B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+user_track_view                          [0;36m   577ms[0m [0;35m     95B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPhases 3-5: Enhanced Analytics & Features[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Token Analytics:
+token_get_holders                        [0;31m 10694ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+token_get_top_traders                    [0;31m 36355ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+holders_by_program_interaction           [1;33m  2856ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Transaction Analysis:
+transaction_get_related                  [0;36m   919ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+transaction_get_metrics                  [0;36m   844ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+transaction_get_failure_analysis         [0;36m   765ms[0m [0;35m    145B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+filter_transactions                      [0;36m   519ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+wallet_path_finding                      [0;36m   525ms[0m [0;35m    142B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Launchpad:
+launchpad_list_sales                     [0;36m   639ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+launchpad_get_sale                       [0;36m   681ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+launchpad_contribute                     [0;36m   534ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+launchpad_get_referral_link              [0;36m   507ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Share & Referrals:
+share_generate                           [0;36m   495ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+share_get_data                           [0;36m   551ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+referral_get_balance                     [0;36m   542ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Analytics:
+analytics_get_aggregators                [1;33m  2071ms[0m [0;35m     7KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_bots                       [1;33m  1105ms[0m [0;35m     6KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_cross_chain                [0;31m 36383ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_defai                      [0;36m   545ms[0m [0;35m     8KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_infofi                     [1;33m  2675ms[0m [0;35m     9KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_launchpads                 [1;33m  1125ms[0m [0;35m    17KB[0m Schema:\033[0;32m✓\033[0m Success:\033[1;33m⚠\033[0m
+analytics_get_socialfi                   [0;36m   527ms[0m [0;35m     7KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_user_interactions              [0;36m   665ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Search & Discovery:
+search_filtered                          [0;36m   577ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+search_get_suggestions                   [0;36m   591ms[0m [0;35m     79B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+search_get_empty_state                   [0;36m   825ms[0m [0;35m     5KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+nft_get_trending                         [0;36m   528ms[0m [0;35m    482B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+nft_get_new                              [0;36m   564ms[0m [0;35m    499B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Monitoring & System:
+monitoring_get_requests                  [0;36m   525ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+monitoring_get_api_metrics               [0;36m   498ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+error_tracking_list                      [0;36m   520ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+Miscellaneous:
+chat_global                              [0;36m   911ms[0m [0;35m     3KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+ai_get_similar_questions                 [1;33m  2760ms[0m [0;35m    361B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+check_token                              [0;36m   493ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+instruction_lookup                       [0;36m   501ms[0m [0;35m    131B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+program_discovery                        [1;33m  1058ms[0m [0;35m    145B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+get_trades                               [0;36m   635ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+get_slots                                [0;36m   585ms[0m [0;35m     5KB[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+get_validator_info                       [1;33m  1331ms[0m [0;35m    144B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+get_version                              [0;36m   435ms[0m [0;35m    193B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+check_anthropic_health                   [0;36m   776ms[0m [0;35m    367B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mExisting Tools - Sample[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+transaction_get                          [0;32m   100ms[0m [0;35m    146B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+transaction_analyze                      [0;32m   105ms[0m [0;35m    149B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+transaction_explain                      [0;32m    99ms[0m [0;35m    150B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+account_get_info                         [0;32m   105ms[0m [0;35m    146B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+account_get_transactions                 [0;32m   101ms[0m [0;35m    155B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+account_get_portfolio                    [0;32m    97ms[0m [0;35m    152B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+token_get_info                           [0;32m   101ms[0m [0;35m    143B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+token_get_metadata                       [0;32m    97ms[0m [0;35m    149B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+nft_get_collections                      [0;32m   100ms[0m [0;35m    150B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_overview                   [0;32m    99ms[0m [0;35m    153B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+analytics_get_dex                        [0;32m   102ms[0m [0;35m    148B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+block_get_info                           [0;32m   106ms[0m [0;35m    145B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+blocks_get_recent                        [0;32m   102ms[0m [0;35m    148B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+alerts_get                               [0;32m   114ms[0m [0;35m    141B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+search                                   [0;32m   124ms[0m [0;35m    136B[0m Schema:\033[0;32m✓\033[0m Success:\033[0;32m✓\033[0m
+
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34mPerformance Summary[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+Latency Statistics:
+  Total Tests:    [0;36m72[0m
+  Average:        [0;36m1799ms[0m
+  Median:         [0;36m554ms[0m
+  Min:            [0;32m97ms[0m
+  Max:            [0;31m36383ms[0m
+
+Latency Distribution:
+  [0;32mFast[0m (<200ms):       16 tests (22%)
+  [0;36mAcceptable[0m (<1000ms): 43 tests (59%)
+  [1;33mSlow[0m (<3000ms):      10 tests (13%)
+  [0;31mVery Slow[0m (>3000ms):  3 tests (4%)
+
+Response Size Statistics:
+  Average:        [0;35m1KB[0m
+  Min:            [0;32m79B[0m
+  Max:            [0;31m17KB[0m
+  Total Data:     [0;35m0MB[0m
+
+Schema Validation:
+  Valid:          [0;32m72[0m (100%)
+  Invalid:        [0;31m0[0m (0%)
+
+Performance Rating:
+  [1;33m⚠ ACCEPTABLE[0m - Performance could be improved
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+Results saved to: [0;36mperformance-results.json[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m

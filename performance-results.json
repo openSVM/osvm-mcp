@@ -1,0 +1,866 @@
+{"tests": [
+  {
+    "tool": "trading_get_pools",
+    "description": "Get USDC pools",
+    "latency_ms": 819,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "trading_get_pools",
+    "description": "Get SOL pools",
+    "latency_ms": 518,
+    "response_size_bytes": 142,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "trading_get_trades",
+    "description": "Get SOL trades",
+    "latency_ms": 678,
+    "response_size_bytes": 16579,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": false,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "trading_get_positions",
+    "description": "Get positions",
+    "latency_ms": 543,
+    "response_size_bytes": 202,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "trading_chat",
+    "description": "Trading chat",
+    "latency_ms": 2025,
+    "response_size_bytes": 1016,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "opensvm_list_keys",
+    "description": "List API keys",
+    "latency_ms": 565,
+    "response_size_bytes": 137,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": false,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "opensvm_get_usage",
+    "description": "Get usage",
+    "latency_ms": 563,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": false,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "opensvm_get_balance",
+    "description": "Get balance",
+    "latency_ms": 558,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": false,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_get_followers",
+    "description": "Get followers",
+    "latency_ms": 560,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_get_following",
+    "description": "Get following",
+    "latency_ms": 1205,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "user_get_profile",
+    "description": "Get profile",
+    "latency_ms": 731,
+    "response_size_bytes": 415,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_update_profile",
+    "description": "Update profile",
+    "latency_ms": 101,
+    "response_size_bytes": 127,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "user_sync_profile_stats",
+    "description": "Sync stats",
+    "latency_ms": 516,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_get_feed",
+    "description": "Get feed",
+    "latency_ms": 861,
+    "response_size_bytes": 9657,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_get_tab_preference",
+    "description": "Get tab pref",
+    "latency_ms": 550,
+    "response_size_bytes": 129,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "user_track_view",
+    "description": "Track view",
+    "latency_ms": 577,
+    "response_size_bytes": 95,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "token_get_holders",
+    "description": "USDC holders",
+    "latency_ms": 10694,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "V.SLOW"
+  }
+,
+  {
+    "tool": "token_get_top_traders",
+    "description": "USDC traders",
+    "latency_ms": 36355,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "V.SLOW"
+  }
+,
+  {
+    "tool": "holders_by_program_interaction",
+    "description": "Program holders",
+    "latency_ms": 2856,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "transaction_get_related",
+    "description": "Related txs",
+    "latency_ms": 919,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "transaction_get_metrics",
+    "description": "Tx metrics",
+    "latency_ms": 844,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "transaction_get_failure_analysis",
+    "description": "Failure analysis",
+    "latency_ms": 765,
+    "response_size_bytes": 145,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "filter_transactions",
+    "description": "Filter txs",
+    "latency_ms": 519,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "wallet_path_finding",
+    "description": "Path finding",
+    "latency_ms": 525,
+    "response_size_bytes": 142,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "launchpad_list_sales",
+    "description": "List sales",
+    "latency_ms": 639,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "launchpad_get_sale",
+    "description": "Get sale",
+    "latency_ms": 681,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "launchpad_contribute",
+    "description": "Contribute",
+    "latency_ms": 534,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "launchpad_get_referral_link",
+    "description": "Get referral",
+    "latency_ms": 507,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "share_generate",
+    "description": "Generate share",
+    "latency_ms": 495,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "share_get_data",
+    "description": "Get share data",
+    "latency_ms": 551,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "referral_get_balance",
+    "description": "Referral balance",
+    "latency_ms": 542,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "analytics_get_aggregators",
+    "description": "Aggregators",
+    "latency_ms": 2071,
+    "response_size_bytes": 7650,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "analytics_get_bots",
+    "description": "Bots",
+    "latency_ms": 1105,
+    "response_size_bytes": 6986,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "analytics_get_cross_chain",
+    "description": "Cross-chain",
+    "latency_ms": 36383,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "V.SLOW"
+  }
+,
+  {
+    "tool": "analytics_get_defai",
+    "description": "DeFi",
+    "latency_ms": 545,
+    "response_size_bytes": 9139,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "analytics_get_infofi",
+    "description": "InfoFi",
+    "latency_ms": 2675,
+    "response_size_bytes": 10106,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "analytics_get_launchpads",
+    "description": "Launchpads",
+    "latency_ms": 1125,
+    "response_size_bytes": 18071,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": false,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "analytics_get_socialfi",
+    "description": "SocialFi",
+    "latency_ms": 527,
+    "response_size_bytes": 8001,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "analytics_user_interactions",
+    "description": "User interactions",
+    "latency_ms": 665,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "search_filtered",
+    "description": "Search Solana",
+    "latency_ms": 577,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "search_get_suggestions",
+    "description": "Suggestions",
+    "latency_ms": 591,
+    "response_size_bytes": 79,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "search_get_empty_state",
+    "description": "Empty state",
+    "latency_ms": 825,
+    "response_size_bytes": 5541,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "nft_get_trending",
+    "description": "Trending NFTs",
+    "latency_ms": 528,
+    "response_size_bytes": 482,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "nft_get_new",
+    "description": "New NFTs",
+    "latency_ms": 564,
+    "response_size_bytes": 499,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "monitoring_get_requests",
+    "description": "Request metrics",
+    "latency_ms": 525,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "monitoring_get_api_metrics",
+    "description": "API metrics",
+    "latency_ms": 498,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "error_tracking_list",
+    "description": "Error tracking",
+    "latency_ms": 520,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "chat_global",
+    "description": "Global chat",
+    "latency_ms": 911,
+    "response_size_bytes": 3746,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "ai_get_similar_questions",
+    "description": "Similar questions",
+    "latency_ms": 2760,
+    "response_size_bytes": 361,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "check_token",
+    "description": "Check token",
+    "latency_ms": 493,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "instruction_lookup",
+    "description": "Instruction lookup",
+    "latency_ms": 501,
+    "response_size_bytes": 131,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "program_discovery",
+    "description": "Program discovery",
+    "latency_ms": 1058,
+    "response_size_bytes": 145,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "get_trades",
+    "description": "Get trades",
+    "latency_ms": 635,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "get_slots",
+    "description": "Get slots",
+    "latency_ms": 585,
+    "response_size_bytes": 5997,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "get_validator_info",
+    "description": "Validator info",
+    "latency_ms": 1331,
+    "response_size_bytes": 144,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "SLOW"
+  }
+,
+  {
+    "tool": "get_version",
+    "description": "Get version",
+    "latency_ms": 435,
+    "response_size_bytes": 193,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "check_anthropic_health",
+    "description": "Check health",
+    "latency_ms": 776,
+    "response_size_bytes": 367,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "OK"
+  }
+,
+  {
+    "tool": "transaction_get",
+    "description": "Get transaction",
+    "latency_ms": 100,
+    "response_size_bytes": 146,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "transaction_analyze",
+    "description": "Analyze tx",
+    "latency_ms": 105,
+    "response_size_bytes": 149,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "transaction_explain",
+    "description": "Explain tx",
+    "latency_ms": 99,
+    "response_size_bytes": 150,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "account_get_info",
+    "description": "Account info",
+    "latency_ms": 105,
+    "response_size_bytes": 146,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "account_get_transactions",
+    "description": "Account txs",
+    "latency_ms": 101,
+    "response_size_bytes": 155,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "account_get_portfolio",
+    "description": "Portfolio",
+    "latency_ms": 97,
+    "response_size_bytes": 152,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "token_get_info",
+    "description": "Token info",
+    "latency_ms": 101,
+    "response_size_bytes": 143,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "token_get_metadata",
+    "description": "Token metadata",
+    "latency_ms": 97,
+    "response_size_bytes": 149,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "nft_get_collections",
+    "description": "NFT collections",
+    "latency_ms": 100,
+    "response_size_bytes": 150,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "analytics_get_overview",
+    "description": "Analytics overview",
+    "latency_ms": 99,
+    "response_size_bytes": 153,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "analytics_get_dex",
+    "description": "DEX analytics",
+    "latency_ms": 102,
+    "response_size_bytes": 148,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "block_get_info",
+    "description": "Block info",
+    "latency_ms": 106,
+    "response_size_bytes": 145,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "blocks_get_recent",
+    "description": "Recent blocks",
+    "latency_ms": 102,
+    "response_size_bytes": 148,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "alerts_get",
+    "description": "Get alerts",
+    "latency_ms": 114,
+    "response_size_bytes": 141,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+,
+  {
+    "tool": "search",
+    "description": "Basic search",
+    "latency_ms": 124,
+    "response_size_bytes": 136,
+    "schema_valid": true,
+    "has_result": true,
+    "has_error": false,
+    "success": true,
+    "latency_category": "FAST"
+  }
+
+]}
